@@ -1,1 +1,2 @@
-The most recent branch, where i am adding stuff
+Stable branch - for playtesters
+
