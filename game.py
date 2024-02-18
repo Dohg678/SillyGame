@@ -193,6 +193,7 @@ class Game:
         self.coyote = 0
         self.dt = 0
         self.tilemap = Tilemap(self, tile_size=16)
+        self.layers = ['rooms', 'fgscaled', 'fg', 'mg', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'invis']
         self.MM = MusicManager(self)
         self.volume = 100
         self.settings = 'mainpage'
@@ -410,8 +411,8 @@ class Game:
     def render_all(self, render_scroll):
         self.clouds.render(self.display_2, offset=render_scroll)
         
-            
-        self.tilemap.render(self.display, offset=render_scroll)
+        for layer in self.tilemap.tilemap:
+            self.tilemap.render(self.display, layer, offset=render_scroll)
                     
         for breakable in self.breakable.copy():
             breakable.render(self.display, offset=render_scroll)
@@ -660,11 +661,8 @@ class Game:
         
         self.MM.fadebetween('base2', 'base', timeinms=1000, goalvolumeout=0.0, goalvolumein=1.0)
         
-        rand = random.randint(0,1)
-        if rand == 1:
-            self.level = "bg"
-        else:
-            self.level = "bg2"
+        rand = random.randint(0,0)
+        self.level = rand
         self.load_bglevel(self.level)
         #self.tile_scroll_anim = self.assets['settings_tile_scroll'].copy()
         self.bg_transition = 0
@@ -821,7 +819,8 @@ class Game:
             
             size = self.screen.get_size()
             size = [math.floor(size[0] *  0.40), math.floor(size[1] * 0.40)]
-            self.tilemap.render(self.display_3, (math.floor(mpos[0] / 20 + 64), math.floor(mpos[1] / 20 - 25)))
+            for layer in self.tilemap.tilemap:
+                self.tilemap.render(self.display_3, layer, (math.floor(mpos[0] / 20 + 64), math.floor(mpos[1] / 20 - 25)))
                 
                 
             self.assets['settingsbg'].set_alpha(self.bg_transition)

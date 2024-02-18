@@ -1,6 +1,7 @@
 import sys
 import os
 import pygame
+import cProfile
 
 from scripts.utils import load_images, Font
 from scripts.tilemap import Tilemap
@@ -14,7 +15,7 @@ class Editor:
         
 
         pygame.display.set_caption('editor')
-        self.screen = pygame.display.set_mode((960, 540), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode((960, 540), pygame.RESIZABLE|pygame.DOUBLEBUF|pygame.HWSURFACE)
         self.display = pygame.Surface((320, 180))
 
         self.clock = pygame.time.Clock()
@@ -59,7 +60,7 @@ class Editor:
         self.ongrid = True
         self.scroll_amt = 2
         self.current_layer = 0
-        self.layers = ['fgscaled', 'fg', 'mg', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'invis']
+        self.layers = ['rooms', 'fgscaled', 'fg', 'mg', '0', '1', '2', '3', 'invis']
         
     def run(self):
         while True:
@@ -69,8 +70,9 @@ class Editor:
             self.scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_amt
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
-            
-            self.tilemap.render(self.display, offset=render_scroll)
+            for layer in self.layers:
+                self.tilemap.render(self.display, layer, offset=render_scroll)
+                
             self.tilemap.show_cam_bounds(self.display, offset=render_scroll)
             current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
             current_tileset = self.tile_list[self.tile_group]
@@ -87,16 +89,18 @@ class Editor:
                 self.display.blit(current_tile_img, mpos)
             
             if self.clicking and self.ongrid:
-                self.tilemap.tilemap[str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos}
+                self.tilemap.tilemap[self.layers[self.current_layer]][str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos}
+                
             if self.right_clicking:
                 tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
-                if tile_loc in self.tilemap.tilemap:
-                    del self.tilemap.tilemap[tile_loc]
+                if tile_loc in self.tilemap.tilemap[self.layers[self.current_layer]]:
+                    del self.tilemap.tilemap[self.layers[self.current_layer]][tile_loc]
                 for tile in self.tilemap.offgrid_tiles.copy():
                     tile_img = self.assets[tile['type']][tile['variant']]
                     tile_r = pygame.Rect(tile['pos'][0] - self.scroll[0], tile['pos'][1] - self.scroll[1], tile_img.get_width(), tile_img.get_height())
                     if tile_r.collidepoint(mpos):
                         self.tilemap.offgrid_tiles.remove(tile)
+                        
             if self.clicking:
                 pygame.draw.rect(self.display, (255, 200, 50), (tile_pos[0] * self.tilemap.tile_size - self.scroll[0], tile_pos[1] * self.tilemap.tile_size - self.scroll[1], 16, 16))
             else:
@@ -204,12 +208,17 @@ class Editor:
                         self.shift = False
                     
             self.tilemap.rendertilehb(self.display, render_scroll)
-            
+            try:
+                self.hover_tile = str(self.tilemap.tilemap[self.layers[self.current_layer]][str(tile_pos[0]) + ';' + str(tile_pos[1])])
+            except:
+                self.hover_tile = 'none'
             self.smallfont.render(self.display, current_tileset, (25, 5), (1, 1))
+            self.smallfont.render(self.display, str(self.clock.get_fps()), (25, 26), (1, 1))
+            self.smallfont.render(self.display, self.hover_tile, (25, 21), (1, 1))
             self.smallfont.render(self.display, self.layers[self.current_layer], (25, 13), (1, 1))
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(-1)
 
-Editor().run()
+cProfile.run('Editor().run()')
