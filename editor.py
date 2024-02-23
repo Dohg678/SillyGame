@@ -60,7 +60,7 @@ class Editor:
         self.ongrid = True
         self.scroll_amt = 2
         self.current_layer = 0
-        self.layers = ['rooms', 'fgscaled', 'fg', '0', '1', '2', '3', 'invis']
+        self.layers = ['rooms', 'fgscaled', 'fg', 'mg', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'invis']
         
     def run(self):
         while True:

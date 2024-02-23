@@ -193,7 +193,7 @@ class Game:
         self.coyote = 0
         self.dt = 0
         self.tilemap = Tilemap(self, tile_size=16)
-        self.layers = ['rooms', 'fgscaled', 'fg', '0', '1', '2', '3', 'invis']
+        self.layers = ['rooms', 'fgscaled', 'fg', 'mg', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'invis']
         self.MM = MusicManager(self)
         self.volume = 100
         self.settings = 'mainpage'
