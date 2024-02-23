@@ -60,7 +60,7 @@ class Editor:
         self.ongrid = True
         self.scroll_amt = 2
         self.current_layer = 0
-        self.layers = ['rooms', 'fgscaled', 'fg', 'mg', '0', '1', '2', '3', 'invis']
+        self.layers = ['rooms', 'fgscaled', 'fg', '0', '1', '2', '3', 'invis']
         
     def run(self):
         while True:
@@ -70,10 +70,11 @@ class Editor:
             self.scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_amt
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
-            for layer in self.layers:
-                self.tilemap.render(self.display, layer, offset=render_scroll)
+            
+            self.tilemap.render(self.display, self.layers[self.current_layer], offset=render_scroll)
                 
-            self.tilemap.show_cam_bounds(self.display, offset=render_scroll)
+            self.tilemap.show_cam_bounds(self.display, self.layers[self.current_layer], offset=render_scroll)
+            
             current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
             current_tileset = self.tile_list[self.tile_group]
             current_tile_img.set_alpha(100)
@@ -206,8 +207,9 @@ class Editor:
                         self.movement[3] = False
                     if event.key == pygame.K_LSHIFT:
                         self.shift = False
-                    
-            self.tilemap.rendertilehb(self.display, render_scroll)
+            
+            
+            self.tilemap.rendertilehb(self.display, self.layers[self.current_layer], render_scroll)
             try:
                 self.hover_tile = str(self.tilemap.tilemap[self.layers[self.current_layer]][str(tile_pos[0]) + ';' + str(tile_pos[1])])
             except:
@@ -219,6 +221,6 @@ class Editor:
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
-            self.clock.tick(-1)
+            self.clock.tick(60)
 
 cProfile.run('Editor().run()')

@@ -138,17 +138,10 @@ class Tilemap:
             'rooms': {},
             'fgscaled': {},
             'fg': {},
-            'mg': {},
             '0': {},
             '1': {},
             '2': {},
             '3': {},
-            '4': {},
-            '5': {},
-            '6': {},
-            '7': {},
-            '8': {},
-            '9': {},
             'invis': {},
             }
         self.offgrid_tiles = []
@@ -248,18 +241,21 @@ class Tilemap:
                 rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
         return rects
     
-    def rendertilehb(self, surf, offset=(0, 0)):
-        for layer in self.tilemap:
-            for loc in self.tilemap[layer]:
-                tile = self.tilemap[layer][loc]
-                if tile['type'] in KILL_TILES:
-                    pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] * self.tile_size - offset[0] + 3, tile['pos'][1] * self.tile_size - offset[1] + 3, self.tile_size - 6, self.tile_size - 6), 1)
-                elif tile['type'] in PHYSICS_TILES:
-                    pygame.draw.rect(surf, (100, 0, 0), (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1], self.tile_size, self.tile_size), 1)
-                elif tile['type'] in CHECKPOINT_TILES:
-                    pygame.draw.rect(surf, (0, 100, 0), (tile['pos'][0] * self.tile_size - offset[0] - 2, tile['pos'][1] * self.tile_size - offset[1] - 2, 20, 36), 1)
-                elif tile['type'] in MOVEMENT_TILES:
-                    pygame.draw.rect(surf, (0, 100, 100), (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1], self.tile_size, self.tile_size), 1)
+    def rendertilehb(self, surf, layer, offset=(0, 0)):
+        for x in range((offset[0] // self.tile_size) - 2, (offset[0] + surf.get_width()) // self.tile_size + 2):
+            for y in range((offset[1] // self.tile_size) - 2, (offset[1] + surf.get_height()) // self.tile_size + 2):
+                loc = str(x) + ';' + str(y)
+                if loc in self.tilemap[layer]:
+                    tile = self.tilemap[layer][loc]
+                    if tile['type'] in KILL_TILES:
+                        pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] * self.tile_size - offset[0] + 3, tile['pos'][1] * self.tile_size - offset[1] + 3, self.tile_size - 6, self.tile_size - 6), 1)
+                    elif tile['type'] in PHYSICS_TILES:
+                        pygame.draw.rect(surf, (100, 0, 0), (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1], self.tile_size, self.tile_size), 1)
+                    elif tile['type'] in CHECKPOINT_TILES:
+                        pygame.draw.rect(surf, (0, 100, 0), (tile['pos'][0] * self.tile_size - offset[0] - 2, tile['pos'][1] * self.tile_size - offset[1] - 2, 20, 36), 1)
+                    elif tile['type'] in MOVEMENT_TILES:
+                        pygame.draw.rect(surf, (0, 100, 100), (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1], self.tile_size, self.tile_size), 1)
+                        
         for tile in self.offgrid_tiles:
             if tile['type'] in KILL_TILES:
                 pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] - offset[0] + 3, tile['pos'][1] - offset[1] + 3, self.tile_size - 6, self.tile_size - 6), 1)
@@ -281,24 +277,24 @@ class Tilemap:
                         if self.tilemap[layer][check_loc]['type'] in AUTOTILE_TYPES:
                             neighbors.add(shift)
                 neighbors = tuple(sorted(neighbors))
-                print(neighbors)
-                print(tile)
                 if neighbors == [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (-1, 1), (0, 1), (1, 1)]:
                     tile['variant'] = 10
                 elif (tile['type'] in AUTOTILE_TYPES) and (neighbors in AUTOTILE_MAP):
                     print('5')
                     tile['variant'] = AUTOTILE_MAP[neighbors]
     
-    def show_cam_bounds(self, surf, offset=(0, 0)):
+    def show_cam_bounds(self, surf, layer, offset=(0, 0)):
         for tile in self.offgrid_tiles:
             if tile['type'] == 'cameratr' and tile['variant'] == 2:
                 pygame.draw.rect(surf, (255, 200, 50), (tile['pos'][0] - surf.get_width()/ 2 - offset[0], tile['pos'][1] - surf.get_height()/ 2 - offset[1], surf.get_width(), surf.get_height()), 3)
         
-        for layer in self.tilemap:
-            for loc in self.tilemap[layer]:
-                tile = self.tilemap[layer][loc]
-                if tile['type'] == 'cameratr' and tile['variant'] == 2:
-                    pygame.draw.rect(surf, (255, 200, 50), (tile['pos'][0] * 16 - surf.get_width()/ 2 - offset[0], tile['pos'][1] * 16 - surf.get_height()/ 2 - offset[1], surf.get_width(), surf.get_height()), 3)
+        for x in range((offset[0] // self.tile_size) - 2, (offset[0] + surf.get_width()) // self.tile_size + 2):
+            for y in range((offset[1] // self.tile_size) - 2, (offset[1] + surf.get_height()) // self.tile_size + 2):
+                loc = str(x) + ';' + str(y)
+                if loc in self.tilemap[layer]:
+                    tile = self.tilemap[layer][loc]
+                    if tile['type'] == 'cameratr' and tile['variant'] == 2:
+                        pygame.draw.rect(surf, (255, 200, 50), (tile['pos'][0] * 16 - surf.get_width()/ 2 - offset[0], tile['pos'][1] * 16 - surf.get_height()/ 2 - offset[1], surf.get_width(), surf.get_height()), 3)
                 
     def room_cam_collisions(self, pos, surf):
         rects = []
