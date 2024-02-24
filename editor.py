@@ -215,7 +215,7 @@ class Editor:
             except:
                 self.hover_tile = 'none'
             self.smallfont.render(self.display, current_tileset, (25, 5), (1, 1))
-            self.smallfont.render(self.display, str(self.clock.get_fps()), (25, 26), (1, 1))
+            self.smallfont.render(self.display, str(self.clock.get_fps()), (25, 28), (1, 1))
             self.smallfont.render(self.display, self.hover_tile, (25, 21), (1, 1))
             self.smallfont.render(self.display, self.layers[self.current_layer], (25, 13), (1, 1))
             
