@@ -1,5 +1,5 @@
 import os
-
+import json
 import pygame
 
 BASE_IMG_PATH = 'data/images/'
@@ -128,57 +128,44 @@ class Animation:
     def img(self):
         return self.images[int(self.frame / self.img_duration)]
     
+ 
+class FileManager(): 
     
-def savefile(saveorload, data=[0,[0, 0]]):
-    load = saveorload
-    if load ==  "save":
-        save = open("save.txt", "w")
-        l1 = str(data[0]) + '\n'
-        l2 = str(data[1][0]) + '\n'
-        l3 = str(data[1][1]) + '\n'
-        save.writelines([l1, l2, l3])
-        save.close()
-    elif load == "load":
-        try:
-            save = open("save.txt", "r")
-            content = save.readlines()
-            level = int(content[0])
-            checkpoint = [int(content[1]), int(content[2])]
-            print(checkpoint)
-            save.close()
-            return level, checkpoint.copy()
-            
-        except:
-            return [0, [0, 0]]
-    elif load == "del":
-        if os.path.exists("save.txt"):
-            os.remove("save.txt")
-    else:
-        print("The file does not exist")
-    
+    def __init__(self, game):
+        self.game = game
+        
+    def savefile(self, saveorload):
+        load = saveorload
+        if load ==  "save":
+            f = open("save.SAVEFILE", 'w')
+            json.dump({'level': self.game.level, 'checkpoint': self.game.respawnpoint}, f)
+            f.close()
+        elif load == "dump":
+            try:
+                f = open("save.SAVEFILE", 'r')
+                savedata = json.load(f)
+                f.close()
+            except:
+                return {'level': 0, 'checkpoint': [0, 0]}
+            return savedata
+        elif load == "clear":
+            f = open("save.SAVEFILE", 'w')
+            json.dump({}, f)
+            f.close()
+        else:
+            print("The file does not exist")
     
 
-def settings(saveorload, settingtbm="win_res", base_screen_size=[960, 540]):
-    load = saveorload
-    if load ==  "save":
-        save = open("settings.txt", "w")
-        l1 = str(base_screen_size) + "\n"
-        l2 = "settings\n"
-        save.writelines([l1, l2])
-        save.close()
-    elif load == "load":
-        try:
-            if settingtbm == "win_res":
-                save = open("settings.txt", "r")
-                content = save.readline(1)
-                return content
-            elif settingtbm == "keybinds":
-                save = open("settings.txt", "r")
-                content = save.readline(1)
-                return content
-            else:
-                settings = save[1]
-                return settings
-            save.close()
-        except:
-            return [960, 540]
+
+    def settings(self, saveorload):
+        load = saveorload
+        if load ==  "save":
+            f = open("settings.SAVEFILE", 'w')
+            json.dump({'keybinds': self.game.keybinds, 'keybindingvalue': self.game.keybindingvalue, 'window_size': self.game.window_size}, f)
+            f.close()
+            
+        elif load == "dump":
+            f = open("settings.SAVEFILE", 'r')
+            settings = json.load(f)
+            f.close()
+            return settings

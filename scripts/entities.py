@@ -149,6 +149,7 @@ class Enemy(PhysicsEntity):
         
     def update(self, tilemap, movement=(0, 0)):
         self.ss.update(self.game.player.pos, self.pos)
+        
         if self.walking:
             if tilemap.solid_check((self.rect().centerx + (-7 if self.flip else 7), self.pos[1] + 23)):
                 if (self.collisions['right'] or self.collisions['left']):
