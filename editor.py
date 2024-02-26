@@ -42,7 +42,7 @@ class Editor:
         self.movement = [False, False, False, False]
         
         self.tilemap = Tilemap(self, tile_size=16)
-        self.level = 0
+        self.level = 2
         try:
             self.tilemap.load('data/maps/' + str(self.level) + '.json')
         except FileNotFoundError:
@@ -185,10 +185,12 @@ class Editor:
                         self.tilemap.save('data/maps/' + str(self.level) + '.json')
                     if event.key == pygame.K_n:
                         self.tilemap.save('data/maps/' + str(self.level) + '.json')
-                        self.level += 1
-                        if self.level == len(os.listdir('data/maps')):
-                            self.level = 0
-                        self.tilemap.load('data/maps/' + str(self.level) + '.json')
+                        self.level += 1 
+                        try:
+                            self.tilemap.load('data/maps/' + str(self.level) + '.json')
+                        except FileNotFoundError:
+                            pass
+                        
                         
                     if event.key == pygame.K_LSHIFT:
                         self.shift = True
