@@ -42,9 +42,9 @@ class Editor:
         self.movement = [False, False, False, False]
         
         self.tilemap = Tilemap(self, tile_size=16)
-        self.level = 2
+        self.level = 0
         try:
-            self.tilemap.load('data/maps/' + str(self.level) + '.json')
+            self.tilemap.load('data/bgmaps/' + str(self.level) + '.json')
         except FileNotFoundError:
             pass
         
@@ -182,7 +182,7 @@ class Editor:
                     if event.key == pygame.K_t:
                         self.tilemap.autotile()
                     if event.key == pygame.K_o:
-                        self.tilemap.save('data/maps/' + str(self.level) + '.json')
+                        self.tilemap.save('data/bgmaps/' + str(self.level) + '.json')
                     if event.key == pygame.K_n:
                         self.tilemap.save('data/maps/' + str(self.level) + '.json')
                         self.level += 1 

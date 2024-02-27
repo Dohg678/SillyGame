@@ -37,7 +37,7 @@ class Game:
         print('initiated')
         self.base_screen_size = [960, 540]
         self.monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
-        pygame.display.set_caption('ninja game')
+        pygame.display.set_caption('5')
         try:
             self.screen = pygame.display.set_mode(self.window_size, pygame.RESIZABLE, vsync=0)
         except:
@@ -221,7 +221,6 @@ class Game:
         else:
             self.hascheckpoint = 1
         self.level = self.save_curr['level']
-        
         self.load_level(self.level)
         self.render_scroll = [0, 0]
         
@@ -242,6 +241,7 @@ class Game:
         self.tilemap.load('data/maps/' + str(map_id) + '.json')
         self.tilemap.randomisetiles()
         self.leaf_spawners = []
+        
         for tree in self.tilemap.extract([('large_decor', 2)], keep=True):
             self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
         
@@ -254,6 +254,7 @@ class Game:
                     self.player.pos = self.respawnpoint.copy()
                 else:
                     self.player.pos = spawner['pos']
+                    self.respawnpoint = self.player.pos
                 self.player.air_time = 0
                 self.player.air_time = 0
             else:
@@ -667,7 +668,6 @@ class Game:
             self.screen.blit(pygame.transform.scale(self.display_2, self.screen.get_size()), screenshake_offset)
             
             #self.screen.blit(pygame.transform.gaussian_blur(self.display_2, 5), (0, 0))
-            
             pygame.display.update()
             self.dt = self.clock.tick(60) / 1000
                 
@@ -690,8 +690,8 @@ class Game:
         self.MM.fadebetween('base2', 'base', timeinms=1000, goalvolumeout=0.0, goalvolumein=1.0)
         
         rand = random.randint(0,0)
-        self.level = rand
-        self.load_bglevel(self.level)
+        self.bglevel = rand
+        self.load_bglevel(self.bglevel)
         #self.tile_scroll_anim = self.assets['settings_tile_scroll'].copy()
         self.bg_transition = 0
         self.tile_scroll_pos = 0
@@ -758,8 +758,7 @@ class Game:
                     if self.menu == 'settings':
                         
                         if self.settings == 'mainpage':
-                            for slider in self.sliders:
-                                self.sliders[slider].has_grab(self.mpos)
+                            
                 
                             collisions = self.mpos_r.colliderect(self.return_rect)
                             if collisions:
@@ -781,7 +780,8 @@ class Game:
                                     self.screen = pygame.display.set_mode(self.base_screen_size, pygame.RESIZABLE)
                             
                         if self.settings == 'soundsliders':
-                            pass
+                            for slider in self.sliders:
+                                self.sliders[slider].has_grab(self.mpos)
                                     
                         if self.settings == 'keybinds':
                             collisions = self.mpos_r.colliderect(self.return_rect)
