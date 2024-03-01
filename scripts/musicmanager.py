@@ -1,7 +1,81 @@
 import pygame
 import math
+import pedalboard
+import sounddevice as sd
+from pedalboard.io import AudioFile, AudioStream
 
+from pedalboard import Pedalboard, Chorus, Distortion, Reverb
 
+def pedalboardtests():
+    # Create an empty Pedalboard object:
+    my_pedalboard = Pedalboard()
+
+    # Treat this object like a Python list:
+    my_pedalboard.append(Chorus())
+    my_pedalboard.append(pedalboard.Phaser())
+    #my_pedalboard.append(Distortion())
+    my_pedalboard.append(Reverb())
+    my_pedalboard.append(pedalboard.Bitcrush(4))
+
+    # Pass audio through this pedalboard:
+
+    with AudioFile("/Users/admin/Documents/GitHub/SillyGame/scripts/test.mp3") as f:
+        print(f.duration) # => 30.0
+        samplerate = f.samplerate
+        print(f.num_channels)
+        output_audio = my_pedalboard(f.read(f.samplerate * 100), samplerate)
+
+    with AudioFile("test2.mp3", "w", samplerate=44100, num_channels=2) as f:
+       f.write(output_audio)
+
+def audio_stream():
+    output_device_name = AudioStream.output_device_names[0]
+    input_device_name = AudioStream.input_device_names[0]
+    stream = AudioStream(input_device_name, output_device_name)
+    stream.plugins.append(pedalboard.Gain(12))
+    stream.run()  # Run the stream until Ctrl-C is received
+
+class Realtime_Audio():
+    
+    def __init__(self):
+        self.timesegment = 1 / 60
+        self.my_pedalboard = Pedalboard()
+        self.segment = 0
+
+        # Treat this object like a Python list:
+        #self.my_pedalboard.append(Chorus())
+        #self.my_pedalboard.append(pedalboard.Phaser())
+        #my_pedalboard.append(Distortion())
+        #self.my_pedalboard.append(Reverb())
+        #self.my_pedalboard.append(pedalboard.VST3Plugin("/Library/Audio/Plug-Ins/VST3/Cymatics Origin.vst3"))
+        #self.my_pedalboard.append(pedalboard.Bitcrush(4))
+        
+    
+    def update(self):
+        with AudioFile("/Users/admin/Documents/GitHub/SillyGame/scripts/test.mp3") as f:
+            samplerate = f.samplerate
+            self.segment += samplerate * self.timesegment
+            output_audio = self.my_pedalboard(f.read(self.segment), samplerate)
+            print(output_audio)
+            output_audio *= 0.1
+            
+        
+        #with AudioFile("test2.mp3", "w", samplerate=44100, num_channels=2) as f:
+        #    f.write(output_audio)
+        
+        h = pygame.mixer.Sound(output_audio)
+        channel = pygame.mixer.Channel(0)
+        h.set_volume(0.1)
+        channel.play(h)
+    
+    def processor(self):
+        pass
+    
+    def playback(self):
+        pass
+    
+    def add_effect(self):
+        pass
 class MusicManager():
     
     def __init__(self, game):
@@ -143,4 +217,11 @@ class SoundSource(object):
         
     def play(self):
         self.sound.play()  
-        
+pygame.init()
+pygame.mixer.init()
+
+clock = pygame.time.Clock()
+rt = Realtime_Audio()
+while True:
+    rt.update()
+    clock.tick(60)

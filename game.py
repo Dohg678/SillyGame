@@ -155,14 +155,26 @@ class Game:
         
         self.buttons = {
             'tosounds': Button(self, 'Sounds', 'soundsliders', self.fonts['small'], scale=[3, 3], pos=[24, 48]),
-            'tokeybinds': Button(self, 'keybinds', 'keybinds', self.fonts['small'], scale=[3, 3], pos=[24,16])
+            'tokeybinds': Button(self, 'keybinds', 'keybinds', self.fonts['small'], scale=[3, 3], pos=[24,16]),
+            'tores_opts': Button(self, 'resolution_options', 'screensize', self.fonts['small'], scale=[3, 3], pos=[24,80])
+        }
+        
+        self.resolution_options = {
+            'tiny': Button(self, '320 x 180', (320, 180), self.fonts['small'], scale=[1, 1], pos=[24, 16]),
+            'small': Button(self, '480 x 270', (480, 270), self.fonts['small'], scale=[1, 1], pos=[24, 32]),
+            'smallish': Button(self, '640 x 360', (640, 360), self.fonts['small'], scale=[1, 1], pos=[24, 48]),
+            'normal': Button(self, '960 x 540', (960, 540), self.fonts['small'], scale=[1, 1], pos=[24, 64]),
+            'large': Button(self, '1280 x 720', (1280, 720), self.fonts['small'], scale=[1, 1], pos=[24, 80]),
+            'xl': Button(self, '1600 x 900', (1600, 900), self.fonts['small'], scale=[1, 1], pos=[24, 96]),
+            'no': Button(self, 'no (16 x 9)', (16, 9), self.fonts['small'], scale=[1, 1], pos=[24, 112]),
         }
         
         self.return_heirarchy = {
             'mainpage': 'mainpage',
             'keybinds': 'mainpage',
             'soundsliders': 'mainpage',
-            'changekey': 'keybinds'
+            'changekey': 'keybinds',
+            'screensize': 'mainpage',
         }
         
         try:
@@ -741,13 +753,10 @@ class Game:
                     
                     
                     
-                    for button in self.buttons:
-                        action = self.buttons[button].update(self.mpos_r)
-                        if action:
-                            self.settings = self.buttons[button].action
                                 
                     
                     if self.menu == 'main':
+                        
                         collisions = self.mpos_r.colliderect(self.start_button_rect)
                         if collisions:
                             self.menu = 'play'
@@ -758,7 +767,11 @@ class Game:
                     if self.menu == 'settings':
                         
                         if self.settings == 'mainpage':
-                            
+                            for button in self.buttons:
+                                action = self.buttons[button].update(self.mpos_r)
+                                if action:
+                                    self.settings = self.buttons[button].action
+                    
                 
                             collisions = self.mpos_r.colliderect(self.return_rect)
                             if collisions:
@@ -782,7 +795,13 @@ class Game:
                         if self.settings == 'soundsliders':
                             for slider in self.sliders:
                                 self.sliders[slider].has_grab(self.mpos)
-                                    
+                        
+                        elif self.settings == 'screensize':
+                            for button in self.resolution_options:
+                                action = self.resolution_options[button].update(self.mpos_r)
+                                if action:
+                                    self.screen = pygame.display.set_mode(self.resolution_options[button].action, pygame.RESIZABLE, vsync=0)
+                        
                         if self.settings == 'keybinds':
                             collisions = self.mpos_r.colliderect(self.return_rect)
                             if collisions:
@@ -886,6 +905,7 @@ class Game:
                     
                     self.buttons['tokeybinds'].render(self.display_3, self.fonts['small'])
                     self.buttons['tosounds'].render(self.display_3, self.fonts['small'])
+                    self.buttons['tores_opts'].render(self.display_3, self.fonts['small'])
                     
                 elif self.settings == 'keybinds':
                         
@@ -908,6 +928,10 @@ class Game:
                     self.key_rects.append(self.fonts['small'].render(self.display_3, self.torender, (160, 90), scale=[2, 2], colour=(255, 225, 255)))
                     self.key_rects.append(self.fonts['small'].render(self.display_3, 'PRESS ENTER TO CONFIRM', (80, 110), scale=[2, 2], colour=(255, 225, 255)))
                 
+                elif self.settings == 'screensize':
+                    for button in self.resolution_options:
+                        self.resolution_options[button].render(self.display_3, self.fonts['small'])
+            
                 self.display_3.blit(self.assets['return'], (4, 4))
                     
             elif self.menu == 'main':
