@@ -150,9 +150,10 @@ class FileManager():
                 return {'level': 0, 'checkpoint': [0, 0]}
             return savedata
         elif load == "clear":
-            os.remove("save.SAVEFILE")
-        else:
-            print("The file does not exist")
+            f = open("save.SAVEFILE", 'w')
+            json.dump({'level': 0, 'checkpoint': [0, 0]}, f)
+            f.close()
+            return {'level': 0, 'checkpoint': [0, 0]}
     
 
 

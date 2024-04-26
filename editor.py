@@ -60,8 +60,46 @@ class Editor:
         self.ongrid = True
         self.scroll_amt = 2
         self.current_layer = 0
-        self.layers = ['rooms', 'fgscaled', 'fg', 'mg', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'invis']
+        self.startclickpoint = []
+        self.endclickpoint = []
+        self.clickmode = 'pen'
+        self.clickmodes = ['pen', 'rect', 'rubber']
+        self.layers = ['rooms', 'fgscaled', 'fg', 'triggers', 'invis']
         
+    
+    def make_rect(self):
+        if self.endclickpoint[0] <= self.startclickpoint[0]:
+            self.startclickpoint[0] += 1
+            print('a')
+            for x in range(self.startclickpoint[0] - self.endclickpoint[0]):
+                if self.endclickpoint[1] <= self.startclickpoint[1]:
+                    self.startclickpoint[1] += 1
+                    for y in range(self.startclickpoint[1] - self.endclickpoint[1]):
+                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.startclickpoint[0] + x) + ';' + str(self.startclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.startclickpoint[1] + y]}
+                else:
+                    self.startclickpoint[1] -= 1
+                    for y in range(self.endclickpoint[1] - self.startclickpoint[1]):
+                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.startclickpoint[0] + x) + ';' + str(self.startclickpoint[1] - y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.startclickpoint[1] - y]}
+                
+        else:
+            print('b')
+            self.startclickpoint[0] -= 1
+            print(self.endclickpoint[0] - self.startclickpoint[0])
+            for x in range(self.endclickpoint[0] - self.startclickpoint[0]):
+                print('loop')
+                if self.endclickpoint[1] <= self.startclickpoint[1]:
+
+                    for y in range((self.startclickpoint[1] + 1) - self.endclickpoint[1]):
+                        print('e')
+                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.endclickpoint[0] + x) + ';' + str(self.startclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.endclickpoint[0] + x, self.startclickpoint[1] + y]}
+                else:
+                    self.startclickpoint[1] -= 1
+                    print(self.endclickpoint[1] - self.startclickpoint[1])
+                    for y in range(self.endclickpoint[1] - self.startclickpoint[1]):
+                        print('f')
+                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.endclickpoint[0] + x) + ';' + str(self.endclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.endclickpoint[1] + y]}
+        print("maderect")
+                
     def run(self):
         while True:
             self.display.fill((0, 0, 0))
@@ -121,26 +159,20 @@ class Editor:
                         self.clicking = True
                         if not self.ongrid:
                             self.tilemap.offgrid_tiles.append({'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': (mpos[0] + self.scroll[0], mpos[1] + self.scroll[1])})
-                
+                        if self.clickmode == 'rect':
+                            print("started")
+                            self.startclickpoint = list(tile_pos)
+                            
                         
-                if event.type == pygame.KEYDOWN:
-                    if event.key  == pygame.K_SPACE:
-                        self.right_clicking = True
-                    if self.shift:
-                        if event.key == pygame.K_4:
-                            self.tile_variant = (self.tile_variant - 1) % len(self.assets[self.tile_list[self.tile_group]])
-                        if event.key == pygame.K_5:
-                            self.tile_variant = (self.tile_variant + 1) % len(self.assets[self.tile_list[self.tile_group]])
-                    else:
-                        if event.key == pygame.K_4:
-                            self.tile_group = (self.tile_group - 1) % len(self.tile_list)
-                            self.tile_variant = 0
-                        if event.key == pygame.K_5:
-                            self.tile_group = (self.tile_group + 1) % len(self.tile_list)
-                            self.tile_variant = 0
+                
                 if event.type == pygame.MOUSEBUTTONUP:
                     if event.button == 1:
                         self.clicking = False
+                        if self.clickmode == 'rect':
+                            self.endclickpoint = list(tile_pos)
+                            print("recting")
+                            self.make_rect()
+                            
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE:
                         self.right_clicking = False
@@ -161,24 +193,9 @@ class Editor:
                     if event.key == pygame.K_g:
                         self.ongrid = not self.ongrid
                     if event.key == pygame.K_r:
-                        from scripts.utils import load_images
-                        from scripts.tilemap import Tilemap
-                        self.assets = {
-                            'base': load_images('tiles/base_demo_tiles'),
-                            'bouncepad': load_images('tiles/bounce_pad'),
-                            'tutorial': load_images('tiles/tut'),
-                            'cameratr': load_images('tiles/triggers/camera'),
-                            'kill': load_images('tiles/kill'),
-                            'killbricks': load_images('tiles/killbricks'),
-                            'ice': load_images('tiles/ice'),
-                            'decor': load_images('tiles/decor'),
-                            'breakables': load_images('tiles/Breakables'),
-                            'grass': load_images('tiles/grass'),
-                            'large_decor': load_images('tiles/large_decor'),
-                            'stone': load_images('tiles/stone'),
-                            'spawners': load_images('tiles/spawners'),
-                            'checkpoint': load_images('tiles/checkpoint'),
-                        }
+                        self.clickmode = 'rect'
+                    if event.key == pygame.K_p:
+                        self.clickmode = 'pen'
                     if event.key == pygame.K_t:
                         self.tilemap.autotile()
                     if event.key == pygame.K_o:
@@ -190,14 +207,27 @@ class Editor:
                             self.tilemap.load('data/maps/' + str(self.level) + '.json')
                         except FileNotFoundError:
                             pass
-                        
-                        
+                    if event.key  == pygame.K_SPACE:
+                        self.right_clicking = True
+                    if self.shift:
+                        if event.key == pygame.K_4:
+                            self.tile_variant = (self.tile_variant - 1) % len(self.assets[self.tile_list[self.tile_group]])
+                        if event.key == pygame.K_5:
+                            self.tile_variant = (self.tile_variant + 1) % len(self.assets[self.tile_list[self.tile_group]])
+                    else:
+                        if event.key == pygame.K_4:
+                            self.tile_group = (self.tile_group - 1) % len(self.tile_list)
+                            self.tile_variant = 0
+                        if event.key == pygame.K_5:
+                            self.tile_group = (self.tile_group + 1) % len(self.tile_list)
+                            self.tile_variant = 0
                     if event.key == pygame.K_LSHIFT:
                         self.shift = True
                     if event.key == pygame.K_EQUALS:
                         self.scroll_amt = min(self.scroll_amt * 2, 16)
                     if event.key == pygame.K_MINUS:
                         self.scroll_amt = max(self.scroll_amt / 2, 0.5)
+                        
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_a:
                         self.movement[0] = False
@@ -220,6 +250,7 @@ class Editor:
             self.smallfont.render(self.display, str(self.clock.get_fps()), (25, 28), (1, 1))
             self.smallfont.render(self.display, self.hover_tile, (25, 21), (1, 1))
             self.smallfont.render(self.display, self.layers[self.current_layer], (25, 13), (1, 1))
+            self.smallfont.render(self.display, self.clickmode, (25, 35), (1, 1))
             
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()

@@ -138,21 +138,10 @@ class Tilemap:
             'rooms': {},
             'fgscaled': {},
             'fg': {},
-            'mg': {},
-            '0': {},
-            '1': {},
-            '2': {},
-            '3': {},
-            '4': {},
-            '5': {},
-            '6': {},
-            '7': {},
-            '8': {},
-            '9': {},
+            'triggers': {},
             'invis': {},
             }
         self.offgrid_tiles = []
-        
     def extract(self, id_pairs, keep=False):
         matches = []
         for tile in self.offgrid_tiles.copy():
@@ -287,7 +276,6 @@ class Tilemap:
                 if neighbors == [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (-1, 1), (0, 1), (1, 1)]:
                     tile['variant'] = 10
                 elif (tile['type'] in AUTOTILE_TYPES) and (neighbors in AUTOTILE_MAP):
-                    print('5')
                     tile['variant'] = AUTOTILE_MAP[neighbors]
     
     def show_cam_bounds(self, surf, layer, offset=(0, 0)):
@@ -320,10 +308,8 @@ class Tilemap:
         rects = []
         for tile in self.offgrid_tiles:
             if tile['type'] in CHECKPOINT_TILES:
-                rects.append(pygame.Rect((tile['pos'][0] - 2), (tile['pos'][1] - 2), 20, 36))
-        for layer in self.tilemap:        
-            for loc in self.tilemap[layer]:
-                tile = self.tilemap[layer][loc]
+                rects.append(pygame.Rect((tile['pos'][0] - 2), (tile['pos'][1] - 2), 20, 36)) 
+        for tile in self.tiles_around(pos):
                 if tile['type'] in CHECKPOINT_TILES:
                     rects.append(pygame.Rect((tile['pos'][0] * 16) - 2, (tile['pos'][1] * 16) - 2, 20, 36))
         return rects
@@ -361,3 +347,4 @@ class Tilemap:
                 if loc in self.tilemap[layer]:
                     tile = self.tilemap[layer][loc]
                     surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
+                

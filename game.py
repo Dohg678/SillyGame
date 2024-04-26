@@ -507,7 +507,6 @@ class Game:
         self.camera_pos = [50, 50]
         self.MM.sfx['ambience'].play(-1)
         self.save_curr = self.FM.savefile("dump")
-        print(self.respawnpoint)
         if self.respawnpoint == [0, 0]:
             self.hascheckpoint = 0
         else:
@@ -813,7 +812,6 @@ class Game:
                                     if self.keybindingname[i] == 'RESTORE DEFAULTS':
                                         self.keybinds = self.keybind_defaults.copy()
                                         self.keybindingvalue = self.keybindingvaluedefault.copy()
-                                        print(self.keybind_defaults, self.keybinds)
                                     else:
                                         self.key_to_change = self.keybindingname[i]
                                         self.valtoset = i
@@ -854,7 +852,9 @@ class Game:
                                 self.screen = pygame.display.set_mode(self.base_screen_size, pygame.RESIZABLE)
                                 self.disable_fullscreen_polling = False
                         if event.key == pygame.K_d:
-                            self.FM.savefile("clear")
+                            self.save_curr = self.FM.savefile("clear")
+                            self.respawnpoint = self.save_curr["checkpoint"]
+                            self.level = self.save_curr["level"]
                 if event.type == pygame.VIDEORESIZE:
                     if self.isfullscreen == False:
                         if self.disable_fullscreen_polling == False:
