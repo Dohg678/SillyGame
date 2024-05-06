@@ -449,7 +449,8 @@ class Game:
         self.clouds.render(self.display_2, offset=render_scroll)
         
         for layer in self.tilemap.tilemap:
-            self.tilemap.render(self.display, layer, offset=render_scroll)
+            if layer != 'invis':
+                self.tilemap.render(self.display, layer, offset=render_scroll)
                     
         for breakable in self.breakable.copy():
             breakable.render(self.display, offset=render_scroll)

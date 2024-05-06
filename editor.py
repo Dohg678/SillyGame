@@ -67,37 +67,27 @@ class Editor:
         self.layers = ['rooms', 'fgscaled', 'fg', 'triggers', 'invis']
         
     
-    def make_rect(self):
+    def make_rect(self): 
+        #makes rect, checks for the direction of drag and the creates an x and y for loop that adds the tiles to the tilemap.
+        
         if self.endclickpoint[0] <= self.startclickpoint[0]:
-            self.startclickpoint[0] += 1
-            print('a')
-            for x in range(self.startclickpoint[0] - self.endclickpoint[0]):
+            for x in range(self.startclickpoint[0] - self.endclickpoint[0] + 1):
                 if self.endclickpoint[1] <= self.startclickpoint[1]:
-                    self.startclickpoint[1] += 1
-                    for y in range(self.startclickpoint[1] - self.endclickpoint[1]):
-                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.startclickpoint[0] + x) + ';' + str(self.startclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.startclickpoint[1] + y]}
+                    for y in range(self.startclickpoint[1] - self.endclickpoint[1] + 1):
+                        #+ 1 and - 1 are to offset the positions so that it renders correctly.
+                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.endclickpoint[0] + x) + ';' + str(self.endclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.endclickpoint[0] + x, self.endclickpoint[1] + y]}
                 else:
-                    self.startclickpoint[1] -= 1
-                    for y in range(self.endclickpoint[1] - self.startclickpoint[1]):
-                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.startclickpoint[0] + x) + ';' + str(self.startclickpoint[1] - y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.startclickpoint[1] - y]}
+                    for y in range(self.endclickpoint[1] - self.startclickpoint[1] + 1):
+                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.endclickpoint[0] + x) + ';' + str(self.startclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.endclickpoint[0] + x, self.startclickpoint[1] + y]}
                 
         else:
-            print('b')
-            self.startclickpoint[0] -= 1
-            print(self.endclickpoint[0] - self.startclickpoint[0])
-            for x in range(self.endclickpoint[0] - self.startclickpoint[0]):
-                print('loop')
+            for x in range(self.endclickpoint[0] - self.startclickpoint[0] + 1):
                 if self.endclickpoint[1] <= self.startclickpoint[1]:
-
-                    for y in range((self.startclickpoint[1] + 1) - self.endclickpoint[1]):
-                        print('e')
-                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.endclickpoint[0] + x) + ';' + str(self.startclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.endclickpoint[0] + x, self.startclickpoint[1] + y]}
+                    for y in range(self.startclickpoint[1] - self.endclickpoint[1] + 1):
+                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.startclickpoint[0] + x) + ';' + str(self.endclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.endclickpoint[1] + y]}
                 else:
-                    self.startclickpoint[1] -= 1
-                    print(self.endclickpoint[1] - self.startclickpoint[1])
-                    for y in range(self.endclickpoint[1] - self.startclickpoint[1]):
-                        print('f')
-                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.endclickpoint[0] + x) + ';' + str(self.endclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.endclickpoint[1] + y]}
+                    for y in range(self.endclickpoint[1] - self.startclickpoint[1] + 1):
+                        self.tilemap.tilemap[self.layers[self.current_layer]][str(self.startclickpoint[0] + x) + ';' + str(self.startclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.startclickpoint[1] + y]}
         print("maderect")
                 
     def run(self):
@@ -127,7 +117,7 @@ class Editor:
             else:
                 self.display.blit(current_tile_img, mpos)
             
-            if self.clicking and self.ongrid:
+            if self.clicking and self.ongrid and self.clickmode == 'pen':
                 self.tilemap.tilemap[self.layers[self.current_layer]][str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos}
                 
             if self.right_clicking:
@@ -256,4 +246,5 @@ class Editor:
             pygame.display.update()
             self.clock.tick(60)
 
-cProfile.run('Editor().run()')
+Editor().run()
+#cProfile.run('Editor().run()')
