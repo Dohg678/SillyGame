@@ -17,7 +17,7 @@ class Editor:
         pygame.display.set_caption('editor')
         self.screen = pygame.display.set_mode((960, 540), pygame.RESIZABLE|pygame.DOUBLEBUF|pygame.HWSURFACE)
         self.display = pygame.Surface((320, 180))
-
+        self.display_scaled = pygame.Surface((960, 540))
         self.clock = pygame.time.Clock()
         
         self.assets = {
@@ -44,7 +44,7 @@ class Editor:
         self.tilemap = Tilemap(self, tile_size=16)
         self.level = 0
         try:
-            self.tilemap.load('data/bgmaps/' + str(self.level) + '.json')
+            self.tilemap.load('data/maps/' + str(self.level) + '.json')
         except FileNotFoundError:
             pass
         
@@ -65,7 +65,16 @@ class Editor:
         self.clickmode = 'pen'
         self.clickmodes = ['pen', 'rect', 'rubber']
         self.layers = ['rooms', 'fgscaled', 'fg', 'triggers', 'invis']
-        
+    
+    def remove_tile(self, tile_pos, mpos):
+        tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
+        if tile_loc in self.tilemap.tilemap[self.layers[self.current_layer]]:
+            del self.tilemap.tilemap[self.layers[self.current_layer]][tile_loc]
+        for tile in self.tilemap.offgrid_tiles.copy():
+            tile_img = self.assets[tile['type']][tile['variant']]
+            tile_r = pygame.Rect(tile['pos'][0] - self.scroll[0], tile['pos'][1] - self.scroll[1], tile_img.get_width(), tile_img.get_height())
+            if tile_r.collidepoint(mpos):
+                self.tilemap.offgrid_tiles.remove(tile)
     
     def make_rect(self): 
         #makes rect, checks for the direction of drag and the creates an x and y for loop that adds the tiles to the tilemap.
@@ -88,8 +97,10 @@ class Editor:
                 else:
                     for y in range(self.endclickpoint[1] - self.startclickpoint[1] + 1):
                         self.tilemap.tilemap[self.layers[self.current_layer]][str(self.startclickpoint[0] + x) + ';' + str(self.startclickpoint[1] + y)] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': [self.startclickpoint[0] + x, self.startclickpoint[1] + y]}
-        print("maderect")
-                
+    
+    def make_tile(self, tile_pos):
+        self.tilemap.tilemap[self.layers[self.current_layer]][str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos}
+        
     def run(self):
         while True:
             self.display.fill((0, 0, 0))
@@ -98,8 +109,13 @@ class Editor:
             self.scroll[1] += (self.movement[3] - self.movement[2]) * self.scroll_amt
             render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
             
-            
-            self.tilemap.render(self.display, self.layers[self.current_layer], offset=render_scroll)
+            iterationlayer = 0
+            for layer in self.tilemap.tilemap:
+                
+                if layer != self.current_layer:
+                    self.tilemap.editorrender(self.display, self.layers[iterationlayer], opacity=100, offset=render_scroll)
+                iterationlayer += 1
+            self.tilemap.editorrender(self.display, self.layers[self.current_layer], offset=render_scroll)
                 
             self.tilemap.show_cam_bounds(self.display, self.layers[self.current_layer], offset=render_scroll)
             
@@ -118,17 +134,10 @@ class Editor:
                 self.display.blit(current_tile_img, mpos)
             
             if self.clicking and self.ongrid and self.clickmode == 'pen':
-                self.tilemap.tilemap[self.layers[self.current_layer]][str(tile_pos[0]) + ';' + str(tile_pos[1])] = {'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': tile_pos}
+                self.make_tile(tile_pos)
                 
             if self.right_clicking:
-                tile_loc = str(tile_pos[0]) + ';' + str(tile_pos[1])
-                if tile_loc in self.tilemap.tilemap[self.layers[self.current_layer]]:
-                    del self.tilemap.tilemap[self.layers[self.current_layer]][tile_loc]
-                for tile in self.tilemap.offgrid_tiles.copy():
-                    tile_img = self.assets[tile['type']][tile['variant']]
-                    tile_r = pygame.Rect(tile['pos'][0] - self.scroll[0], tile['pos'][1] - self.scroll[1], tile_img.get_width(), tile_img.get_height())
-                    if tile_r.collidepoint(mpos):
-                        self.tilemap.offgrid_tiles.remove(tile)
+                self.remove_tile(tile_pos, mpos)
                         
             if self.clicking:
                 pygame.draw.rect(self.display, (255, 200, 50), (tile_pos[0] * self.tilemap.tile_size - self.scroll[0], tile_pos[1] * self.tilemap.tile_size - self.scroll[1], 16, 16))
@@ -150,7 +159,6 @@ class Editor:
                         if not self.ongrid:
                             self.tilemap.offgrid_tiles.append({'type': self.tile_list[self.tile_group], 'variant': self.tile_variant, 'pos': (mpos[0] + self.scroll[0], mpos[1] + self.scroll[1])})
                         if self.clickmode == 'rect':
-                            print("started")
                             self.startclickpoint = list(tile_pos)
                             
                         
@@ -160,7 +168,6 @@ class Editor:
                         self.clicking = False
                         if self.clickmode == 'rect':
                             self.endclickpoint = list(tile_pos)
-                            print("recting")
                             self.make_rect()
                             
                 if event.type == pygame.KEYUP:
@@ -189,7 +196,7 @@ class Editor:
                     if event.key == pygame.K_t:
                         self.tilemap.autotile()
                     if event.key == pygame.K_o:
-                        self.tilemap.save('data/bgmaps/' + str(self.level) + '.json')
+                        self.tilemap.save('data/maps/' + str(self.level) + '.json')
                     if event.key == pygame.K_n:
                         self.tilemap.save('data/maps/' + str(self.level) + '.json')
                         self.level += 1 

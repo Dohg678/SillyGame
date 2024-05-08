@@ -1,6 +1,7 @@
 import json
 import random
 import pygame
+from functools import cache
 
 AUTOTILE_MAP = {
     tuple(sorted([(1, 0), (0, 1), (1, 1)])): 0,
@@ -188,6 +189,7 @@ class Tilemap:
         self.tile_size = map_data['tile_size']
         self.offgrid_tiles = map_data['offgrid']
         
+
     def solid_check(self, pos):
         for layer in self.tilemap:
             tile_loc = str(int(pos[0] // self.tile_size)) + ';' + str(int(pos[1] // self.tile_size))
@@ -195,6 +197,7 @@ class Tilemap:
                 if self.tilemap[layer][tile_loc]['type'] in PHYSICS_TILES:
                     return self.tilemap[layer][tile_loc]
     
+
     def physics_rects_around(self, pos):
         rects = []
         for tile in self.tiles_around(pos):
@@ -202,6 +205,7 @@ class Tilemap:
                 rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
         return rects
     
+
     def trigger_rects_around(self, pos):
         rects = []
         variants = []
@@ -227,6 +231,7 @@ class Tilemap:
                     rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
         return rects
     
+
     def movement_rects_around(self, pos):
         rects = []
         for tile in self.offgrid_tiles:
@@ -290,7 +295,7 @@ class Tilemap:
                     tile = self.tilemap[layer][loc]
                     if tile['type'] == 'cameratr' and tile['variant'] == 2:
                         pygame.draw.rect(surf, (255, 200, 50), (tile['pos'][0] * 16 - surf.get_width()/ 2 - offset[0], tile['pos'][1] * 16 - surf.get_height()/ 2 - offset[1], surf.get_width(), surf.get_height()), 3)
-                
+                        
     def room_cam_collisions(self, pos, surf):
         rects = []
         for tile in self.offgrid_tiles:
@@ -303,7 +308,7 @@ class Tilemap:
                 if tile['type'] in CAMERA_TRIGGER_TILES and tile['variant'] == 2:
                     rects.append(pygame.Rect((tile['pos'][0] * 16) - surf.get_width()/ 2, (tile['pos'][1] * 16) - surf.get_height()/ 2, surf.get_width(), surf.get_height()))
         return rects
-    
+
     def checkpointcollisions(self, pos, surf):
         rects = []
         for tile in self.offgrid_tiles:
@@ -336,7 +341,7 @@ class Tilemap:
                         tile['variant'] = 25
                     if (tile['type'] in AUTOTILE_TYPES) and (neighbors in AUTOTILE_MAP2):
                         tile['variant'] = AUTOTILE_MAP2[neighbors]
-                    
+
     def render(self, surf, layer, offset=(0, 0)):
         for tile in self.offgrid_tiles:
             surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))
@@ -347,4 +352,19 @@ class Tilemap:
                 if loc in self.tilemap[layer]:
                     tile = self.tilemap[layer][loc]
                     surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
+    
+    def editorrender(self, surf, layer, opacity=255, offset=(0, 0)):
+        for tile in self.offgrid_tiles:
+            tile_img = self.game.assets[tile['type']][tile['variant']]
+            tile_img.set_alpha(100)
+            surf.blit(tile_img, (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))
+            
+        for x in range((offset[0] // self.tile_size) - 2, (offset[0] + surf.get_width()) // self.tile_size + 2):
+            for y in range((offset[1] // self.tile_size) - 2, (offset[1] + surf.get_height()) // self.tile_size + 2):
+                loc = str(x) + ';' + str(y)
+                if loc in self.tilemap[layer]:
+                    tile = self.tilemap[layer][loc]
+                    tile_img = self.game.assets[tile['type']][tile['variant']]
+                    tile_img.set_alpha(100)
+                    surf.blit(tile_img, (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
                 
