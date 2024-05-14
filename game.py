@@ -42,9 +42,9 @@ class Game:
             self.screen = pygame.display.set_mode(self.window_size, pygame.RESIZABLE, vsync=0)
         except:
             self.screen = pygame.display.set_mode((960, 540), pygame.RESIZABLE, vsync=0)
-        self.display = pygame.Surface((320, 180), pygame.SRCALPHA)
-        self.display_2 = pygame.Surface((320, 180))
-        self.display_3 = pygame.Surface((320, 180))
+        self.display = pygame.Surface((480, 270), pygame.SRCALPHA)
+        self.display_2 = pygame.Surface((480, 270))
+        self.display_3 = pygame.Surface((480, 270))
         self.window_size = pygame.display.get_window_size()
         
         
@@ -657,7 +657,8 @@ class Game:
                     self.jumpbuf = 0
             
             if self.isrenderhb:
-                self.tilemap.rendertilehb(self.display, render_scroll)
+                for layer in self.tilemap.tilemap:
+                    self.tilemap.rendertilehb(self.display, layer,  render_scroll)
                 
             if self.transition:
                 transition_surf = pygame.Surface(self.display.get_size())

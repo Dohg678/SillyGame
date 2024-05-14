@@ -7,7 +7,7 @@ from scripts.utils import load_images, Font
 from scripts.tilemap import Tilemap
 
 clickeffectsize = 50
-RENDER_SCALE = 3.0
+RENDER_SCALE = 2.0
 
 class Editor:
     def __init__(self):
@@ -16,7 +16,7 @@ class Editor:
 
         pygame.display.set_caption('editor')
         self.screen = pygame.display.set_mode((960, 540), pygame.RESIZABLE|pygame.DOUBLEBUF|pygame.HWSURFACE)
-        self.display = pygame.Surface((320, 180))
+        self.display = pygame.Surface((480, 270))
         self.display_scaled = pygame.Surface((960, 540))
         self.clock = pygame.time.Clock()
         

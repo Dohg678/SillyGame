@@ -1,8 +1,16 @@
 import os
+import sys
 import json
 import pygame
 
-BASE_IMG_PATH = 'data/images/'
+if getattr(sys, 'frozen', False):
+    basedir = sys.executable
+    last_dir = basedir.rfind("/")
+    basedir = basedir[:last_dir]
+else:
+    basedir = "./"
+    
+BASE_IMG_PATH = os.path.join(basedir + 'data/images/')
 
 def load_image(path):
     img = pygame.image.load(BASE_IMG_PATH + path).convert()
@@ -137,20 +145,20 @@ class FileManager():
     def savefile(self, saveorload):
         load = saveorload
         if load ==  "save":
-            f = open("save.SAVEFILE", 'w')
+            f = open(os.path.join(basedir + "data/saves/save.SAVEFILE"), 'w')
             json.dump({'level': self.game.level, 'checkpoint': self.game.respawnpoint}, f)
             f.close()
             print('sucess')
         elif load == "dump":
             try:
-                f = open("save.SAVEFILE", 'r')
+                f = open(os.path.join(basedir + "data/saves/save.SAVEFILE"), 'r')
                 savedata = json.load(f)
                 f.close()
             except:
                 return {'level': 0, 'checkpoint': [0, 0]}
             return savedata
         elif load == "clear":
-            f = open("save.SAVEFILE", 'w')
+            f = open(os.path.join(basedir + "data/saves/save.SAVEFILE"), 'w')
             json.dump({'level': 0, 'checkpoint': [0, 0]}, f)
             f.close()
             return {'level': 0, 'checkpoint': [0, 0]}
@@ -160,12 +168,12 @@ class FileManager():
     def settings(self, saveorload):
         load = saveorload
         if load ==  "save":
-            f = open("settings.SAVEFILE", 'w')
+            f = open(os.path.join(basedir + "data/saves/settings.SAVEFILE"), 'w')
             json.dump({'keybinds': self.game.keybinds, 'keybindingvalue': self.game.keybindingvalue, 'window_size': self.game.window_size}, f)
             f.close()
             
         elif load == "dump":
-            f = open("settings.SAVEFILE", 'r')
+            f = open(os.path.join(basedir + "data/saves/settings.SAVEFILE"), 'r')
             settings = json.load(f)
             f.close()
             return settings

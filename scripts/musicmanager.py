@@ -1,8 +1,6 @@
 import pygame
 import math
-import pedalboard
-import sounddevice as sd
-from pedalboard.io import AudioFile, AudioStream
+
 
 class MusicManager():
     
