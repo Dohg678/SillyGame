@@ -1,6 +1,5 @@
 import math
 import random
-from functools import cache
 import pygame
 
 from scripts.particle import Particle
@@ -228,6 +227,7 @@ class Player():
         else:
             self.velocity[0] = min(self.velocity[0] + 0.1, 0)
         
+        
         self.last_collisions = self.collisions
     
     def render(self, surf, offset=(0, 0), scale=[0, 0]):
@@ -259,7 +259,7 @@ class Player():
                 
         elif self.jumps:
             self.wantscale = [-2, 3]
-            self.velocity[1] = -3
+            self.velocity[1] = -2.75
             self.jumps -= 1
             self.air_time = 5
             return True
@@ -281,10 +281,10 @@ class Player():
             return 4
         #else:
             #return 0
-    @cache
+    
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
-    @cache
+    
     def nearrect(self):
         return pygame.Rect(self.pos[0] - 4, self.pos[1] - 4, self.size[0] + 8, self.size[1] + 8)
     
