@@ -69,7 +69,7 @@ class Game:
             'stone': load_images('tiles/stone'),
             'player': load_image('entities/player.png'),
             'background': load_image('bg.png'),
-            'grassicon': load_image('icon/grass_icon.png'),
+            'grassicon': load_image('icons/grass_icon.png'),
             'transition_twirl': load_image('transitions/twirl_transition.png'),
             'menubackground': load_image('bg.png'),
             'testbutton': load_image('buttons/buttons.png'),
