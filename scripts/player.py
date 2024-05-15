@@ -1,6 +1,6 @@
 import math
 import random
-
+from functools import cache
 import pygame
 
 from scripts.particle import Particle
@@ -281,10 +281,10 @@ class Player():
             return 4
         #else:
             #return 0
-    
+    @cache
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])
-    
+    @cache
     def nearrect(self):
         return pygame.Rect(self.pos[0] - 4, self.pos[1] - 4, self.size[0] + 8, self.size[1] + 8)
     
