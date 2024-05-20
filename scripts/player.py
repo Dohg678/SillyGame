@@ -1,5 +1,6 @@
 import math
 import random
+from functools import cache
 import pygame
 
 from scripts.particle import Particle
@@ -49,7 +50,8 @@ class Player():
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         self.nearcollisions = {'right': False, 'left': False}
         self.killcollisions = False
-        self.frame_movement = (movement[0] + self.velocity[0], movement[1] + self.velocity[1])
+        self.frame_movement = (movement[0] + self.velocity[0] , movement[1] + self.velocity[1] )#* self.game.dt
+        print(self.frame_movement)
         if not self.lockplayer:
             self.pos[0] += self.frame_movement[0]
         entity_rect = self.rect()
@@ -99,7 +101,7 @@ class Player():
             
         self.last_movement = movement
         
-        self.velocity[1] = min(5, self.velocity[1] + (6.5 * self.game.dt))
+        self.velocity[1] = min(5, self.velocity[1] + 0.1)
         
         if self.collisions['down'] or self.collisions['up']:
             self.velocity[1] = 0
@@ -227,7 +229,6 @@ class Player():
         else:
             self.velocity[0] = min(self.velocity[0] + 0.1, 0)
         
-        
         self.last_collisions = self.collisions
     
     def render(self, surf, offset=(0, 0), scale=[0, 0]):
@@ -259,7 +260,7 @@ class Player():
                 
         elif self.jumps:
             self.wantscale = [-2, 3]
-            self.velocity[1] = -2.75
+            self.velocity[1] = -3
             self.jumps -= 1
             self.air_time = 5
             return True

@@ -203,7 +203,7 @@ class Editor:
                         try:
                             self.tilemap.load('data/maps/' + str(self.level) + '.json')
                         except FileNotFoundError:
-                            self.tilemap = Tilemap(self, 16)
+                            self.tilemap = Tilemap(self, 8)
                     if event.key  == pygame.K_SPACE:
                         self.right_clicking = True
                     if self.shift:

@@ -1,7 +1,6 @@
 import json
 import random
 import pygame
-from functools import cache
 
 AUTOTILE_MAP = {
     tuple(sorted([(1, 0), (0, 1), (1, 1)])): 0,
@@ -143,6 +142,7 @@ class Tilemap:
             'invis': {},
             }
         self.offgrid_tiles = []
+        
     def extract(self, id_pairs, keep=False):
         matches = []
         for tile in self.offgrid_tiles.copy():
