@@ -21,5 +21,5 @@ jobs:
     # Optionally verify that it works (provided that it does not need user interaction)
     - uses: actions/upload-artifact@v4
       with:
-        name: runner.os
+        name: $RUNNER_OS
         path: dist/*
