@@ -19,16 +19,19 @@ jobs:
     - run: pip install -r Requirements.txt pyinstaller
     - run: pyinstaller game.py
     # Optionally verify that it works (provided that it does not need user interaction)
-    - uses: actions/upload-artifact@v4
+    
     - if: runner.os == 'Windows'
+      - uses: actions/upload-artifact@v4
       with:
         name: Sillygame-Windows
         path: dist/*
     - if: runner.os == 'macOS'
+      uses: actions/upload-artifact@v4
       with:
         name: Sillygame-Macos
         path: dist/*
     - if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v4
       with:
         name: Sillygame-Linux
         path: dist/*
