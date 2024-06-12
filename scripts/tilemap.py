@@ -343,15 +343,18 @@ class Tilemap:
                         tile['variant'] = AUTOTILE_MAP2[neighbors]
 
     def render(self, surf, layer, offset=(0, 0)):
+        toblit = []
         for tile in self.offgrid_tiles:
-            surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1]))
+            toblit.append((self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1])))
             
         for x in range((offset[0] // self.tile_size) - 2, (offset[0] + surf.get_width()) // self.tile_size + 2):
             for y in range((offset[1] // self.tile_size) - 2, (offset[1] + surf.get_height()) // self.tile_size + 2):
                 loc = str(x) + ';' + str(y)
                 if loc in self.tilemap[layer]:
                     tile = self.tilemap[layer][loc]
-                    surf.blit(self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1]))
+                    toblit.append((self.game.assets[tile['type']][tile['variant']], (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1])))
+        
+        surf.blits(toblit)
     
     def editorrender(self, surf, layer, opacity=255, offset=(0, 0)):
         for tile in self.offgrid_tiles:

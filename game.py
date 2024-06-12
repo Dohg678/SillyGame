@@ -6,7 +6,6 @@ import random
 import time
 import pygame
 import cProfile
-import cython
 
 from scripts.utils import load_image, load_images, Animation, Font, fontcolour, clip, FileManager
 from scripts.entities import PhysicsEntity, Enemy, Breakable, Shard, Enemydead
@@ -34,6 +33,7 @@ class Game:
         pygame.mixer.quit()
         pygame.mixer.pre_init(44100, -16, 2, 0) # setup mixer to avoid sound lag 
         pygame.init()                      #initialize pygame 
+        pygame.event.set_allowed([pygame.QUIT, pygame.KEYDOWN, pygame.KEYUP, pygame.MOUSEBUTTONDOWN,  pygame.MOUSEBUTTONUP])
         pygame.mixer.init()
         pygame.mixer.set_num_channels(64)
         print('initiated')
@@ -41,12 +41,12 @@ class Game:
         self.monitor_size = [pygame.display.Info().current_w, pygame.display.Info().current_h]
         pygame.display.set_caption('holyguacamole')
         try:
-            self.screen = pygame.display.set_mode(self.window_size, pygame.RESIZABLE, vsync=0)
+            self.screen = pygame.display.set_mode(self.window_size, pygame.RESIZABLE | pygame.DOUBLEBUF, vsync=0)
         except:
-            self.screen = pygame.display.set_mode((960, 540), pygame.RESIZABLE, vsync=0)
+            self.screen = pygame.display.set_mode((960, 540), pygame.RESIZABLE | pygame.DOUBLEBUF, vsync=0)
             
-        self.display = pygame.Surface((640, 360), pygame.SRCALPHA)#480, 270 - 320, 180
-        self.display_2 = pygame.Surface((640, 360)) #320, 180 | 640, 360
+        self.display = pygame.Surface((320, 180), pygame.SRCALPHA)#480, 270 - 320, 180
+        self.display_2 = pygame.Surface((320, 180)) #320, 180 | 640, 360
         self.display_3 = pygame.Surface((640, 360))
         self.window_size = pygame.display.get_window_size()
         
@@ -511,7 +511,7 @@ class Game:
         #    self.screen = pygame.display.set_mode(self.window_size, pygame.RESIZABLE)
         self.scroll[0] = self.player.rect().centerx
         self.scroll[1] = self.player.rect().centery
-        while True:
+        while 1:
             self.dt = time.time() - self.last_time
             self.dt *= 60
             self.last_time = time.time()
@@ -675,7 +675,7 @@ class Game:
             
             #self.screen.blit(pygame.transform.gaussian_blur(self.display_2, 5), (0, 0))
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(6000)
                 
                 
                 
@@ -709,7 +709,7 @@ class Game:
         self.key_store = pygame.K_a
         
         
-        while True:
+        while 1:
             
             self.display.fill((0, 0, 0, 0))
             
@@ -830,7 +830,7 @@ class Game:
             
     
     def settingsmenu(self):
-        while True:
+        while 1:
             
             self.display.fill((0, 0, 0, 0))
             
