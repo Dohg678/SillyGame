@@ -17,7 +17,7 @@ class MusicManager():
         
         self.music = {
             'base' : pygame.mixer.Sound('data/music.wav'),
-            'base2' : pygame.mixer.Sound('data/gameplayloop.wav'),
+            'base2' : pygame.mixer.Sound('data/slodrum.mp3'),
         }
         self.music['base'].set_volume(0.5)
         
@@ -62,7 +62,7 @@ class MusicManager():
             self.channels[musicid1].fadeout(timeinms)
         if not(musicid2 == None):
             self.channels[musicid2].set_volume(goalvolumein)
-            self.channels[musicid2].play(self.music[musicid2], -1)
+            self.channels[musicid2].play(self.music[musicid2],-1, fade_ms=timeinms)
         
         #self.channels[musicid2].set_volume(0.0)
         

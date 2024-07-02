@@ -30,4 +30,4 @@ class Button():
         if self.collide(mouse_rect):
             return True
     def render(self, surf, font):
-        font.render(surf, self.text, self.pos, scale=self.scale, colour=self.fontcolour)
+        font.render(surf, self.text, self.pos, scale=self.scale)

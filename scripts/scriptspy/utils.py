@@ -31,16 +31,6 @@ def clip(surf, x, y, clipsizex, clipsizey):
     img = surf.subsurface(clip_surf.get_clip())
     return img.copy()
 
-def fontcolour(surf, old_c, new_c):
-    img_copy = pygame.Surface(surf.get_size())
-    img_bgcopy = pygame.Surface(surf.get_size())
-    
-    img_bgcopy.fill((0, 0, 0))
-    img_bgcopy.blit(surf, (0, 0))
-    img_copy.fill(new_c)
-    img_bgcopy.set_colorkey(old_c)
-    img_copy.blit(img_bgcopy, (0, 0))
-    img_copy.set_colorkey((0, 0, 0))
     
     return img_copy
 # all the characters
@@ -77,7 +67,7 @@ class Font():
                 x_offset += (self.space_width + self.spacing) * scale[0]
         return [x_offset, y_offset]
         
-    def render(self, surf, text, loc, scale=[0, 0], colour =(255, 255, 255), outline=True):
+    def render(self, surf, text, loc, scale=[0, 0], outline=True):
         y_offset = self.characters['A'].get_height()
         x_offset = 0
         for char in text:
@@ -90,6 +80,7 @@ class Font():
                 x_offset += (self.space_width + self.spacing) * scale[0]
             
         tempsurf = pygame.Surface((x_offset + 10, y_offset * scale[1]))
+        tempsurf.set_colorkey((0, 0, 0))
         x_offset = 0
         for char in text:
             if char != ' ':
@@ -97,7 +88,6 @@ class Font():
                     img = self.characters[char]
                 except:
                     continue
-                img = fontcolour(img, (255, 255, 255), colour)
                 tempsurf.blit(pygame.transform.scale(img, (img.get_width() * scale[0], img.get_height() * scale[1])), (x_offset, 0))
                 x_offset += (img.get_width() + self.spacing) * scale[0]
             else:
@@ -158,11 +148,11 @@ class FileManager():
             except:
                 return {'level': 0, 'checkpoint': [0, 0]}
             return savedata
-        
         elif load == "clear":
             f = open(os.path.join(basedir + "data/saves/save.SAVEFILE"), 'w')
-            json.dump({'level': self.game.level, 'checkpoint': self.game.respawnpoint}, f)
+            json.dump({'level': 0, 'checkpoint': [0, 0]}, f)
             f.close()
+            return {'level': 0, 'checkpoint': [0, 0]}
     
 
 

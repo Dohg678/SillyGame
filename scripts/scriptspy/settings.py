@@ -42,7 +42,7 @@ class Settings:
         }
         
         self.return_heirarchy = {
-            'mainpage': 'mainmenu',
+            'mainmenu': 'mainpage',
             'keybinds': 'mainpage',
             'soundsliders': 'mainpage',
             'changekey': 'keybinds',

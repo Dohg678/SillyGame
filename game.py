@@ -7,7 +7,7 @@ import time
 import pygame
 import cProfile
 
-from scripts.utils import load_image, load_images, Animation, Font, fontcolour, clip, FileManager
+from scripts.utils import load_image, load_images, Animation, Font, clip, FileManager
 from scripts.entities import PhysicsEntity, Enemy, Breakable, Shard, Enemydead
 from scripts.player import Player
 from scripts.sliders import Slider
@@ -45,9 +45,9 @@ class Game:
         except:
             self.screen = pygame.display.set_mode((960, 540), pygame.RESIZABLE | pygame.DOUBLEBUF, vsync=0)
             
-        self.display = pygame.Surface((320, 180), pygame.SRCALPHA)#480, 270 - 320, 180
-        self.display_2 = pygame.Surface((320, 180)) #320, 180 | 640, 360
-        self.display_3 = pygame.Surface((640, 360))
+        self.display = pygame.Surface((480, 270), pygame.SRCALPHA)#480, 270 - 320, 180
+        self.display_2 = pygame.Surface((480, 270)) #320, 180 | 640, 360
+        self.display_3 = pygame.Surface((480, 270))
         self.window_size = pygame.display.get_window_size()
         
         
@@ -70,6 +70,7 @@ class Game:
             'grass': load_images('tiles/grass'),
             'large_decor': load_images('tiles/large_decor'),
             'stone': load_images('tiles/stone'),
+            'bg_stone': load_images('bgtiles/stone'),
             'player': load_image('entities/player.png'),
             'background': load_image('bg.png'),
             'grassicon': load_image('icons/grass_icon.png'),
@@ -124,7 +125,7 @@ class Game:
             'big': Font('large_font.png'),
         }
         
-        self.keybinding_rect = self.fonts['big'].render(self.screen, '---   ', (460, 250), scale=[10, 10], colour=(255, 225, 255))
+        self.keybinding_rect = self.fonts['big'].render(self.screen, '---   ', (460, 250), scale=[10, 10])
         pygame.display.update()
         
         self.sfx = {
@@ -141,7 +142,7 @@ class Game:
         }
         self.music['base'].set_volume(0.5)
         
-        self.keybinding_rect = self.fonts['big'].render(self.screen, '----  ', (460, 250), scale=[10, 10], colour=(255, 225, 255))
+        self.keybinding_rect = self.fonts['big'].render(self.screen, '----  ', (460, 250), scale=[10, 10])
         pygame.display.update()
         
         self.sfx['ambience'].set_volume(0.2)
@@ -230,7 +231,7 @@ class Game:
         self.mpos_r = pygame.Rect(mpos[1], mpos[0], 5, 5)
         
         self.settings = 'mainpage'
-        self.keybinding_rect = self.fonts['big'].render(self.screen, '-----', (460, 250), scale=[10, 10], colour=(255, 225, 255))
+        self.keybinding_rect = self.fonts['big'].render(self.screen, '-----', (460, 250), scale=[10, 10])
         
         pygame.display.update()
         
@@ -240,6 +241,7 @@ class Game:
         self.last_time = time.time()
         
     def load_level(self, map_id):
+        
         self.tilemap.load('data/maps/' + str(map_id) + '.json')
         self.tilemap.randomisetiles()
         self.leaf_spawners = []
@@ -439,7 +441,7 @@ class Game:
         self.clouds.render(self.display_2, offset=render_scroll)
         
         for layer in self.tilemap.tilemap:
-            if layer != 'invis':
+            if layer != 'invis' and layer != 'fg':
                 self.tilemap.render(self.display, layer, offset=render_scroll)
                     
         for breakable in self.breakable.copy():
@@ -469,7 +471,8 @@ class Game:
         if self.freezefr % 5 == 0:
             for spark in self.sparks.copy():
                 spark.render(self.display, offset=render_scroll)
-                
+                    
+        self.tilemap.render(self.display, "fg", offset=render_scroll)
         
         for particle in self.particles.copy():
             particle.render(self.display, offset=render_scroll)
@@ -512,9 +515,7 @@ class Game:
         self.scroll[0] = self.player.rect().centerx
         self.scroll[1] = self.player.rect().centery
         while 1:
-            self.dt = time.time() - self.last_time
-            self.dt *= 60
-            self.last_time = time.time()
+            
             if self.freezefr == 0:
                 
                 self.display.fill((0, 0, 0, 0))
@@ -527,7 +528,7 @@ class Game:
                     self.transition += 1
                     if self.transition > 30:
                         self.hascheckpoint = 0
-                        self.level = min(self.level + 1, len(os.listdir('data/maps')) - 1)
+                        self.level = min(self.level + 1, len(os.listdir('data/maps')) - 2)
                         self.FM.savefile("save")
                         self.load_level(self.level)
                 
@@ -585,7 +586,7 @@ class Game:
             self.pause_button_rect = pygame.Rect(0, 0, 16, 16)
             self.mpos_r.x = mpos[0]
             self.mpos_r.y = mpos[1]
-            
+            print(self.respawnpoint)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.FM.savefile("save")
@@ -608,17 +609,6 @@ class Game:
                         self.volume = max(self.volume - 5, 0)
                     if event.key == pygame.K_EQUALS:
                         self.volume = min(self.volume + 5, 100)
-                    if event.key == pygame.K_v:
-                        self.MM.fadebetween(musicid2='base', timeinms=1000, goalvolumeout=0.0, goalvolumein=1.0)
-                    if event.key == pygame.K_i:
-                        self.ab = 10
-                    if event.key == pygame.K_o:
-                        self.ab = 60
-                    if event.key == pygame.K_c:
-                        if self.camera == "locked":
-                            self.camera = "free"
-                        else:
-                            self.camera = "locked"
                     if event.key == self.keybinds['menu']:
                         self.FM.savefile("save")
                         self.menu = 'main'
@@ -665,9 +655,9 @@ class Game:
             
             self.display_2.blit(self.display, (0, 0))
             
-            self.fonts['small'].render(self.display_2, 'level ' + str(self.level + 1), [0, 8], [1, 1], (255, 255, 255))
-            self.fonts['small'].render(self.display_2, str(round(self.clock.get_fps())) + 'fps', [0, 16], [1, 1], (255, 255, 255))
-            self.fonts['small'].render(self.display_2, 'dt:' + str(self.dt), [0, 24], [1, 1], (255, 255, 255))
+            self.fonts['small'].render(self.display_2, 'level ' + str(self.level + 1), [0, 8], [1, 1])
+            self.fonts['small'].render(self.display_2, str(round(self.clock.get_fps())) + 'fps', [0, 16], [1, 1])
+            #self.fonts['small'].render(self.display_2, 'dt:' + str(self.dt), [0, 24], [1, 1])
             self.display_2.blit(self.assets['pause'], (0, 0))
             screenshake_offset = (random.random() * self.screenshake - self.screenshake / 2, random.random() * self.screenshake - self.screenshake / 2)
             
@@ -675,8 +665,7 @@ class Game:
             
             #self.screen.blit(pygame.transform.gaussian_blur(self.display_2, 5), (0, 0))
             pygame.display.update()
-            self.clock.tick(6000)
-                
+            self.dt = self.clock.tick(60) / 10
                 
                 
                 
@@ -713,7 +702,7 @@ class Game:
             
             self.display.fill((0, 0, 0, 0))
             
-            self.display_3.blit(pygame.transform.gaussian_blur(self.assets['menubackground'], 5), (0, 0))
+            self.display_3.blit(self.assets['menubackground'], (0, 0))
             
             self.MM.update()
             
@@ -763,18 +752,19 @@ class Game:
                         self.menu = 'play'
                         self.run()
                         self.iterations = 0
-                        if event.key == pygame.K_f:
-                            self.isfullscreen = not self.isfullscreen
-                            if self.isfullscreen:
-                                self.disable_fullscreen_polling = True
-                                self.screen = pygame.display.set_mode(self.monitor_size, pygame.FULLSCREEN)
-                            else:
-                                self.screen = pygame.display.set_mode(self.base_screen_size, pygame.RESIZABLE)
-                                self.disable_fullscreen_polling = False
-                        if event.key == pygame.K_d:
-                            self.save_curr = self.FM.savefile("clear")
-                            self.respawnpoint = self.save_curr["checkpoint"]
-                            self.level = self.save_curr["level"]
+                    if event.key == pygame.K_f:
+                        self.isfullscreen = not self.isfullscreen
+                        if self.isfullscreen:
+                            self.disable_fullscreen_polling = True
+                            self.screen = pygame.display.set_mode(self.monitor_size, pygame.FULLSCREEN)
+                        else:
+                            self.screen = pygame.display.set_mode(self.base_screen_size, pygame.RESIZABLE)
+                            self.disable_fullscreen_polling = False
+                    if event.key == pygame.K_d:
+                        print("clearing")
+                        self.level = 0
+                        self.respawnpoint = [0, 0]
+                        self.FM.savefile("clear")
                 if event.type == pygame.VIDEORESIZE:
                     if self.isfullscreen == False:
                         if self.disable_fullscreen_polling == False:
@@ -808,12 +798,12 @@ class Game:
                 #self.display_3.blit(self.assets['settings'], (128,136))
                     
             if self.col_loop:
-                self.fonts['small'].render(self.display_3, 'START', (131, 107), scale=[3, 3], colour=(15, 225, 200))
+                self.fonts['small'].render(self.display_3, 'START', (131, 107), scale=[3, 3])
                 
             else:
-                self.fonts['small'].render(self.display_3, 'START', (131, 107), scale=[3, 3], colour=(200, 200, 15))
+                self.fonts['small'].render(self.display_3, 'START', (131, 107), scale=[3, 3])
                 
-            self.fonts['small'].render(self.display_3, 'SETTINGS', (133, 148), scale=[1.75, 1.75], colour=(255, 255, 255))
+            self.fonts['small'].render(self.display_3, 'SETTINGS', (133, 148), scale=[1.75, 1.75])
                     
             self.screen.blit(pygame.transform.scale(self.display_3, self.screen.get_size()), (0, 0))
             self.col_loop = not self.col_loop
@@ -834,7 +824,7 @@ class Game:
             
             self.display.fill((0, 0, 0, 0))
             
-            self.display_3.blit(pygame.transform.gaussian_blur(self.assets['menubackground'], 5), (0, 0))
+            self.display_3.blit(self.assets['menubackground'], (0, 0))
             
             
             
@@ -849,7 +839,10 @@ class Game:
                 breakable.render(self.display_3,  (math.floor(mpos[0] / 20 + 64), math.floor(mpos[1] / 20 - 25)))
                 if kill:
                     self.breakable.remove(breakable)
-                    
+            
+            for layer in self.tilemap.tilemap:
+                self.tilemap.render(self.display_3, layer, (math.floor(mpos[0] / 20 + 64), math.floor(mpos[1] / 20 - 25)))
+                
             display_mask = pygame.mask.from_surface(self.display)
             display_sillhouette = display_mask.to_surface(setcolor=(0, 0, 0, 180), unsetcolor=(0, 0, 0, 0))
             for offset in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
@@ -863,36 +856,38 @@ class Game:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     self.settingsmanager.mousedown = True
                     
-                    if self.menu == 'settings':
+                    collisions = self.mpos_r.colliderect(self.return_rect)
                         
-                        if self.settings == 'mainpage':
-                            pass
+                    if collisions:
+                        self.settings = self.settingsmanager.return_heirarchy[self.settings]
+                        
+                    if self.settings == 'mainmenu':
+                        self.settings = 'mainpage'
+                        self.menu = 'main'
+                        self.mainmenu()
+
+                    elif self.settings == 'screensize':
+                        for button in self.settingsmanager.resolution_options:
+                            action = self.settingsmanager.resolution_options[button].update(self.mpos_r)
+                            if action:
+                                self.screen = pygame.display.set_mode(self.settingsmanager.resolution_options[button].action, pygame.RESIZABLE, vsync=0)
+                    
+                    
+                        
+                    elif self.settings == 'keybinds':
                             
-                        elif self.settings == 'screensize':
-                            for button in self.resolution_options:
-                                action = self.resolution_options[button].update(self.mpos_r)
-                                if action:
-                                    self.screen = pygame.display.set_mode(self.resolution_options[button].action, pygame.RESIZABLE, vsync=0)
-                        
-                        if self.settings == 'keybinds':
-                            collisions = self.mpos_r.colliderect(self.return_rect)
+                        for i in range(0, len(self.key_rects)):
+                            collisions = self.mpos_r.colliderect(self.key_rects[i])
                             if collisions:
-                                self.settings = 'mainpage'
+                                if self.keybindingname[i] == 'RESTORE DEFAULTS':
+                                    self.keybinds = self.keybind_defaults.copy()
+                                    self.keybindingvalue = self.keybindingvaluedefault.copy()
+                                else:
+                                    self.key_to_change = self.keybindingname[i]
+                                    self.valtoset = i
+                                    self.settings = 'changekey'
                             
-                            for i in range(0, len(self.key_rects)):
-                                collisions = self.mpos_r.colliderect(self.key_rects[i])
-                                if collisions:
-                                    if self.keybindingname[i] == 'RESTORE DEFAULTS':
-                                        self.keybinds = self.keybind_defaults.copy()
-                                        self.keybindingvalue = self.keybindingvaluedefault.copy()
-                                    else:
-                                        self.key_to_change = self.keybindingname[i]
-                                        self.valtoset = i
-                                        self.settings = 'changekey'
                                 
-                        collisions = self.mpos_r.colliderect(self.return_rect)
-                        if collisions:
-                            self.settings = self.return_heirarchy[self.settings]
                             
                 if event.type == pygame.MOUSEBUTTONUP:
                     self.settingsmanager.mousedown = False
@@ -911,10 +906,12 @@ class Game:
                             self.torender = pygame.key.name(event.key)
                             self.torender = self.torender.upper()
                             self.keybindingvalue[self.valtoset] = self.torender
+            
+            if self.settingsmanager.mousedown == True:
+                if self.settings == 'soundsliders':
+                    self.settingsmanager.sounds_update()
             size = self.screen.get_size()
             size = [math.floor(size[0] *  0.40), math.floor(size[1] * 0.40)]
-            for layer in self.tilemap.tilemap:
-                self.tilemap.render(self.display_3, layer, (math.floor(mpos[0] / 20 + 64), math.floor(mpos[1] / 20 - 25)))
                 
                 
             self.assets['settingsbg'].set_alpha(self.bg_transition)
@@ -938,19 +935,19 @@ class Game:
                 self.settingsmanager.main(self.display_3)
                     
                     
-                    #self.keybinding_rect = self.fonts['small'].render(self.display_3, 'KEY BINDINGS', (20, 20), scale=[3, 3], colour=(255, 225, 255))
+                    #self.keybinding_rect = self.fonts['small'].render(self.display_3, 'KEY BINDINGS', (20, 20), scale=[3, 3])
                     
             if self.settings == 'soundsliders':
-                self.settingsmanager.sounds_update()
+                
                 self.settingsmanager.sounds(self.display_3)
                     
             elif self.settings == 'keybinds':            
-                self.keybinding_rect = self.fonts['big'].render(self.display_3, '- KEYBINDINGS', (20, 16), scale=[1, 1], colour=(255, 225, 255))
+                self.keybinding_rect = self.fonts['big'].render(self.display_3, '- KEYBINDINGS', (20, 16), scale=[1, 1])
                 self.key_rects = []
                 for key in range(0, len(self.keybindingname)):
-                    self.key_rects.append(self.fonts['small'].render(self.display_3, self.keybindingname[key], (20, 28 + (key*16)), scale=[2, 2], colour=(255, 225, 255)))
+                    self.key_rects.append(self.fonts['small'].render(self.display_3, self.keybindingname[key], (20, 28 + (key*16)), scale=[2, 2]))
                                         
-                    self.fonts['small'].render(self.display_3, self.keybindingvalue[key], (180, 28 + (key*16)), scale=[2, 2], colour=(255, 225, 255))
+                    self.fonts['small'].render(self.display_3, self.keybindingvalue[key], (180, 28 + (key*16)), scale=[2, 2])
                     
                 
                     
@@ -958,18 +955,18 @@ class Game:
             elif self.settings == 'changekey':
                 self.display_3.blit(self.assets['settingsbg'], (0, 0))
                     
-                self.key_rects.append(self.fonts['small'].render(self.display_3, 'set ' + self.key_to_change.lower() + ' key to', (120, 70), scale=[2, 2], colour=(255, 225, 255)))
-                self.key_rects.append(self.fonts['small'].render(self.display_3, self.torender, (160, 90), scale=[2, 2], colour=(255, 225, 255)))
-                self.key_rects.append(self.fonts['small'].render(self.display_3, 'PRESS ENTER TO CONFIRM', (80, 110), scale=[2, 2], colour=(255, 225, 255)))
+                self.key_rects.append(self.fonts['small'].render(self.display_3, 'set ' + self.key_to_change.lower() + ' key to', (120, 70), scale=[2, 2]))
+                self.key_rects.append(self.fonts['small'].render(self.display_3, self.torender, (160, 90), scale=[2, 2]))
+                self.key_rects.append(self.fonts['small'].render(self.display_3, 'PRESS ENTER TO CONFIRM', (80, 110), scale=[2, 2]))
                 
             elif self.settings == 'screensize':
-                for button in self.resolution_options:
-                    self.resolution_options[button].render(self.display_3, self.fonts['small'])
+                for button in self.settingsmanager.resolution_options:
+                    self.settingsmanager.resolution_options[button].render(self.display_3, self.fonts['small'])
             
             
             
             self.display_3.blit(self.assets['return'], (4, 4))   
-            
+            self.fonts['small'].render(self.display_3, str(round(self.clock.get_fps())) + 'fps', [0, 16], [1, 1])
             self.screen.blit(pygame.transform.scale(self.display_3, self.screen.get_size()), (0, 0))
             
             pygame.display.update()

@@ -128,7 +128,7 @@ MOVEMENT_TILES = {'bouncepad'}
 CHECKPOINT_TILES = {'checkpoint'}
 CAMERA_TRIGGER_TILES = {'cameratr'}
 BREAKABLES_TILES = {'breakables'}
-AUTOTILE_TYPES = {'grass', 'stone', 'ice', 'base', 'bg_stone'}
+AUTOTILE_TYPES = {'grass', 'stone', 'ice', 'base'}
 
 class Tilemap:
     def __init__(self, game, tile_size=16):

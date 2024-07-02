@@ -50,7 +50,7 @@ class Player():
         self.collisions = {'up': False, 'down': False, 'right': False, 'left': False}
         self.nearcollisions = {'right': False, 'left': False}
         self.killcollisions = False
-        self.frame_movement = (((movement[0] + self.velocity[0])), (movement[1] + self.velocity[1]))#* self.game.dt
+        self.frame_movement = (((movement[0] + self.velocity[0]) * self.game.dt) / 2, (movement[1] + self.velocity[1]))#* self.game.dt
         
         if not self.lockplayer:
             self.pos[0] += self.frame_movement[0]
@@ -133,18 +133,16 @@ class Player():
                 self.air_time = 0
                 self.game.sfx['spring'].play()
         
-        checkpoint = 0
+        
         for rect in tilemap.checkpointcollisions(self.pos, self.game.display):
             if self.rect().colliderect(rect):
                 if not [rect.centerx, rect.centery] in self.game.checkpointscollected:
                     self.game.hascheckpoint = 1
-                    checkpoint = 1
                     self.game.checkpointscollected.append([rect.centerx, rect.centery])
                     self.game.reload_enemies = self.game.enemies.copy()
                     self.game.respawnpoint = [rect.centerx, rect.centery]
-        if not checkpoint:
-            self.game.respawnpoint = [0, 0]
-            
+                   
+        
         self.isspark += 1
         self.air_time += 1
         

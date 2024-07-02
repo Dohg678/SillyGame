@@ -33,6 +33,7 @@ class Editor:
             'grass': load_images('tiles/grass'),
             'large_decor': load_images('tiles/large_decor'),
             'stone': load_images('tiles/stone'),
+            'bg_stone': load_images('bgtiles/stone'),
             'spawners': load_images('tiles/spawners'),
             'checkpoint': load_images('tiles/checkpoint'),
         }
@@ -203,7 +204,7 @@ class Editor:
                         try:
                             self.tilemap.load('data/maps/' + str(self.level) + '.json')
                         except FileNotFoundError:
-                            self.tilemap = Tilemap(self, 8)
+                            self.tilemap = Tilemap(self, 16)
                     if event.key  == pygame.K_SPACE:
                         self.right_clicking = True
                     if self.shift:
