@@ -125,6 +125,7 @@ NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1)
 PHYSICS_TILES = {'grass', 'stone', 'ice'}
 KILL_TILES = {'kill', 'killbricks'}
 MOVEMENT_TILES = {'bouncepad'}
+REFILL_TILES = {'refill'}
 CHECKPOINT_TILES = {'checkpoint'}
 CAMERA_TRIGGER_TILES = {'cameratr'}
 BREAKABLES_TILES = {'breakables'}
@@ -309,13 +310,23 @@ class Tilemap:
                     rects.append(pygame.Rect((tile['pos'][0] * 16) - surf.get_width()/ 2, (tile['pos'][1] * 16) - surf.get_height()/ 2, surf.get_width(), surf.get_height()))
         return rects
 
-    def checkpointcollisions(self, pos, surf):
+    def checkpointcollisions(self, pos):
         rects = []
         for tile in self.offgrid_tiles:
             if tile['type'] in CHECKPOINT_TILES:
                 rects.append(pygame.Rect((tile['pos'][0] - 2), (tile['pos'][1] - 2), 20, 36)) 
         for tile in self.tiles_around(pos):
                 if tile['type'] in CHECKPOINT_TILES:
+                    rects.append(pygame.Rect((tile['pos'][0] * 16) - 2, (tile['pos'][1] * 16) - 2, 20, 36))
+        return rects
+    
+    def refillcollisions(self, pos):
+        rects = []
+        for tile in self.offgrid_tiles:
+            if tile['type'] in REFILL_TILES:
+                rects.append(pygame.Rect((tile['pos'][0] - 2), (tile['pos'][1] - 2), 20, 36)) 
+        for tile in self.tiles_around(pos):
+                if tile['type'] in REFILL_TILES:
                     rects.append(pygame.Rect((tile['pos'][0] * 16) - 2, (tile['pos'][1] * 16) - 2, 20, 36))
         return rects
     

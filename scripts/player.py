@@ -36,6 +36,7 @@ class Player():
         self.jumps = 1
         self.wall_slide = False
         self.dashing = 0
+        self.dashcount = 1
         self.isspark = 0
         self.coyote = 0
         self.stamina = 20
@@ -133,8 +134,13 @@ class Player():
                 self.air_time = 0
                 self.game.sfx['spring'].play()
         
+        for rect in tilemap.refillcollisions(self.pos):
+            if entity_rect.colliderect(rect):
+                self.dashcount = min(1, self.dashcount + 1)
+                self.game.sfx['spring'].play()
+            
         checkpoint = 0
-        for rect in tilemap.checkpointcollisions(self.pos, self.game.display):
+        for rect in tilemap.checkpointcollisions(self.pos):
             if self.rect().colliderect(rect):
                 if not [rect.centerx, rect.centery] in self.game.checkpointscollected:
                     self.game.hascheckpoint = 1
@@ -232,6 +238,8 @@ class Player():
             self.velocity[0] = min(self.velocity[0] + 0.2, 0)
         
         self.last_collisions = self.collisions
+        if not self.dashing:
+            self.dashcount = min(1, self.dashcount + 1)
     
     def render(self, surf, offset=(0, 0), scale=[0, 0]):
         if abs(self.dashing) <= 50:
@@ -274,16 +282,18 @@ class Player():
                 return True
     
     def dash(self):
-        #if not self.dashing:
+        
+        if self.dashcount >= 1:
             self.game.sfx['dash'].play()
             self.game.screenshake = 16
+            self.dashcount -= 1
             if self.flip:
                 self.dashing = -60
             else:
                 self.dashing = 60
             return 4
-        #else:
-            #return 0
+        else:
+            return 0
     
     def rect(self):
         return pygame.Rect(self.pos[0], self.pos[1], self.size[0], self.size[1])

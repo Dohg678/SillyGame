@@ -62,6 +62,7 @@ class Game:
             'bouncepad': load_images('tiles/bounce_pad'),
             'cameratr': load_images('tiles/invis/camera'),
             'ice': load_images('tiles/ice'),
+            'refill': load_images('tiles/refill'),
             'tutorial': load_images('tiles/tut'),
             'decor': load_images('tiles/decor'),
             'checkpoint': load_images('tiles/checkpoint'),
@@ -78,6 +79,7 @@ class Game:
             'menubackground': load_image('bg.png'),
             'testbutton': load_image('buttons/buttons.png'),
             'settings': load_image('buttons/settings.png'),
+            'nodashes': load_image('nodash.png'),
             'settingsbg': load_image('buttons/settings_bg.png'),
             'pausebg': load_image('buttons/settings_bg.png'),
             'pause': load_image('buttons/pause.png'),
@@ -117,7 +119,8 @@ class Game:
             'projectile': load_image('projectile.png'),
         }
         
-        self.assets['overlay'].set_alpha(100)
+        self.assets['nodashes'].set_alpha(100)
+        
         self.icon = pygame.display.set_icon(self.assets['grassicon'])
         
         self.fonts = {
@@ -642,7 +645,10 @@ class Game:
             if self.isrenderhb:
                 for layer in self.tilemap.tilemap:
                     self.tilemap.rendertilehb(self.display, layer,  render_scroll)
-                
+            
+            if self.player.dashing != 0:
+                self.display_2.blit(self.assets['nodashes'], (0, 0))
+            
             if self.transition:
                 transition_surf = pygame.Surface(self.display.get_size())
                 #transition_surf.blit(pygame.transform.scale(self.assets['transition_twirl'], (((60 - abs(self.transition)) * abs(self.transition)), ((60 - abs(self.transition)) * abs(self.transition)))), (self.display.get_width() // 2 - ((60 - abs(self.transition)) * abs(self.transition) / 2), self.display.get_height() // 2 - ((60 - abs(self.transition)) * abs(self.transition) / 2)))

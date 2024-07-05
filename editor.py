@@ -36,6 +36,7 @@ class Editor:
             'bg_stone': load_images('bgtiles/stone'),
             'spawners': load_images('tiles/spawners'),
             'checkpoint': load_images('tiles/checkpoint'),
+            'refill': load_images('tiles/refill'),
         }
         
         self.smallfont = Font('small_font.png')
