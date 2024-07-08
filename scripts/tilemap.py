@@ -123,7 +123,7 @@ AUTOTILE_MAP2 = {
 
 NEIGHBOR_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
 PHYSICS_TILES = {'grass', 'stone', 'ice'}
-KILL_TILES = {'kill', 'killbricks'}
+KILL_TILES = {'kill', 'killbricks', 'spike'}
 MOVEMENT_TILES = {'bouncepad'}
 REFILL_TILES = {'refill'}
 CHECKPOINT_TILES = {'checkpoint'}
@@ -224,12 +224,41 @@ class Tilemap:
                     rects.append(pygame.Rect(tile['pos'][0], tile['pos'][1], self.tile_size, self.tile_size))
                 elif tile['type'] == 'kill':
                     rects.append(pygame.Rect(tile['pos'][0] + 3, tile['pos'][1]+ 3, self.tile_size - 6, self.tile_size - 6))
+                elif tile['type'] == 'spike':
+                    if tile['variant'] == 0:
+                        rects.append(pygame.Rect(tile['pos'][0], tile['pos'][1] + 14, self.tile_size, 2))
+                        
+                    elif tile['variant'] == 1:
+                        rects.append(pygame.Rect(tile['pos'][0], tile['pos'][1], 2, self.tile_size))
+                        
+                    elif tile['variant'] == 2:
+                        rects.append(pygame.Rect(tile['pos'][0], tile['pos'][1], self.tile_size, 2))
+                        
+                    elif tile['variant'] == 3:
+                        rects.append(pygame.Rect(tile['pos'][0] + 14, tile['pos'][1], 2, self.tile_size))
+                        
+                        
         for tile in self.tiles_around(pos):
             if tile['type'] in KILL_TILES:
                 if tile['type'] == 'killbricks':
                     rects.append(pygame.Rect(tile['pos'][0] * self.tile_size + 3, tile['pos'][1] * self.tile_size + 3, self.tile_size - 6, self.tile_size - 6))
                 elif tile['type'] == 'kill':
                     rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
+                elif tile['type'] == 'spike':
+                    if tile['variant'] == 0:
+                        rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size + 14, self.tile_size, 2))
+                        
+                    elif tile['variant'] == 1:
+                        rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, 2, self.tile_size))
+                        
+                    elif tile['variant'] == 2:
+                        rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, 2))
+                        
+                    elif tile['variant'] == 3:
+                        rects.append(pygame.Rect(tile['pos'][0] * self.tile_size + 14, tile['pos'][1] * self.tile_size, 2, self.tile_size))
+                        
+                        
+                    
         return rects
     
 
@@ -250,7 +279,22 @@ class Tilemap:
                 if loc in self.tilemap[layer]:
                     tile = self.tilemap[layer][loc]
                     if tile['type'] in KILL_TILES:
-                        pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] * self.tile_size - offset[0] + 3, tile['pos'][1] * self.tile_size - offset[1] + 3, self.tile_size - 6, self.tile_size - 6), 1)
+                        if tile['type'] == 'killbricks' or tile['type'] == 'kill':
+                            pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] * self.tile_size - offset[0] + 3, tile['pos'][1] * self.tile_size - offset[1] + 3, self.tile_size - 6, self.tile_size - 6), 1)
+                        elif tile['type'] == 'spike':
+                            if tile['variant'] == 0:
+                                pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1] + 14, self.tile_size, 2), 1)
+                                
+                            elif tile['variant'] == 1:
+                                pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1], 2, self.tile_size), 1)
+                                
+                            elif tile['variant'] == 2:
+                                pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1], self.tile_size, 2), 1)
+                                
+                            elif tile['variant'] == 3:
+                                pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] * self.tile_size - offset[0] + 14, tile['pos'][1] * self.tile_size - offset[1], 2, self.tile_size), 1)
+                                
+                                
                     elif tile['type'] in PHYSICS_TILES:
                         pygame.draw.rect(surf, (100, 0, 0), (tile['pos'][0] * self.tile_size - offset[0], tile['pos'][1] * self.tile_size - offset[1], self.tile_size, self.tile_size), 1)
                     elif tile['type'] in CHECKPOINT_TILES:
@@ -260,7 +304,22 @@ class Tilemap:
                         
         for tile in self.offgrid_tiles:
             if tile['type'] in KILL_TILES:
-                pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] - offset[0] + 3, tile['pos'][1] - offset[1] + 3, self.tile_size - 6, self.tile_size - 6), 1)
+                if tile['type'] == 'killbricks' or tile['type'] == 'kill':
+                    pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] - offset[0] + 3, tile['pos'][1] - offset[1] + 3, self.tile_size - 6, self.tile_size - 6), 1)
+                elif tile['type'] == 'spike':
+                    if tile['variant'] == 0:
+                        pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1] + 14, self.tile_size, 2), 1)
+                        
+                    elif tile['variant'] == 1:
+                        pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1], 2, self.tile_size), 1)
+                        
+                    elif tile['variant'] == 2:
+                        pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1], self.tile_size, 2), 1)
+                        
+                    elif tile['variant'] == 3:
+                        pygame.draw.rect(surf, (255, 0, 0), (tile['pos'][0] - offset[0] + 14, tile['pos'][1] - offset[1], 2, self.tile_size), 1)
+                        
+                        
             elif tile['type'] in PHYSICS_TILES:
                 pygame.draw.rect(surf, (100, 0, 0), (tile['pos'][0] - offset[0], tile['pos'][1] - offset[1], self.tile_size, self.tile_size), 1)
             elif tile['type'] in CHECKPOINT_TILES:

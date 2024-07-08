@@ -58,6 +58,7 @@ class Game:
         self.assets = {
             'killbricks': load_images('tiles/killbricks'),
             'base': load_images('tiles/base_demo_tiles'),
+            'spike': load_images('tiles/spikes'),
             'kill': load_images('tiles/kill'),
             'bouncepad': load_images('tiles/bounce_pad'),
             'cameratr': load_images('tiles/invis/camera'),
@@ -222,6 +223,8 @@ class Game:
             self.hascheckpoint = 1
         self.level = self.save_curr['level']
         self.load_level(self.level)
+        if self.level >= 3:
+            self.player.dashjump = 1
         self.render_scroll = [0, 0]
         
         self.checkpointscollected = []
@@ -532,6 +535,10 @@ class Game:
                     if self.transition > 30:
                         self.hascheckpoint = 0
                         self.level = min(self.level + 1, len(os.listdir('data/maps')) - 2)
+                        if self.level >= 3:
+                            self.player.dashjump = 1
+                        else:
+                            self.player.dashjump = 0
                         self.FM.savefile("save")
                         self.load_level(self.level)
                 
@@ -589,7 +596,6 @@ class Game:
             self.pause_button_rect = pygame.Rect(0, 0, 16, 16)
             self.mpos_r.x = mpos[0]
             self.mpos_r.y = mpos[1]
-            print(self.respawnpoint)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.FM.savefile("save")

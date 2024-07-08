@@ -37,9 +37,11 @@ class Player():
         self.wall_slide = False
         self.dashing = 0
         self.dashcount = 1
+        self.dashjump = 0
         self.isspark = 0
         self.coyote = 0
         self.stamina = 20
+        self.checkpoint = 0
         self.cameratrcollisions = False
         self.lockplayer = False
         self.last_collisions = {'up': False, 'down': False, 'right': False, 'left': False}
@@ -139,16 +141,17 @@ class Player():
                 self.dashcount = min(1, self.dashcount + 1)
                 self.game.sfx['spring'].play()
             
-        checkpoint = 0
+        
         for rect in tilemap.checkpointcollisions(self.pos):
             if self.rect().colliderect(rect):
                 if not [rect.centerx, rect.centery] in self.game.checkpointscollected:
                     self.game.hascheckpoint = 1
-                    checkpoint = 1
+                    self.checkpoint = 1
                     self.game.checkpointscollected.append([rect.centerx, rect.centery])
                     self.game.reload_enemies = self.game.enemies.copy()
                     self.game.respawnpoint = [rect.centerx, rect.centery]
-        if not checkpoint:
+        
+        if not self.checkpoint:
             self.game.respawnpoint = [0, 0]
             
         self.isspark += 1
@@ -207,7 +210,7 @@ class Player():
         if self.isspark == 20:
             self.isspark = 0
         
-        if abs(self.dashing) in {60, 50}:
+        if abs(self.dashing) in {60, 51}:
             if self.velocity[1] < 0:
                 self.velocity[1] = 0
                 
@@ -217,6 +220,7 @@ class Player():
                 speed = random.random() * 0.5 + 0.5
                 pvelocity = [math.cos(angle) * speed, math.sin(angle) * speed]
                 self.game.particles.append(Particle(self.game, 'particle', self.rect().center, velocity=pvelocity, frame=random.randint(0, 7)))
+                
         if self.dashing > 0:
             self.dashing = max(0, self.dashing - 1)
         if self.dashing < 0:
@@ -227,10 +231,15 @@ class Player():
                 self.velocity[0] *= 0.1
             pvelocity = [abs(self.dashing) / self.dashing * random.random() * 3, 0]
             self.game.particles.append(Particle(self.game, 'particle', self.rect().center, velocity=pvelocity, frame=random.randint(0, 7)))
-        
-        self.wantscale[1] = abs(self.velocity[1] * 3)
-        if self.velocity[1] > 1:
-            self.wantscale[0] = (abs(self.velocity[1]) * -1)
+            
+        if abs(self.dashing) == 50 and self.dashjump:
+            self.coyote = 10
+            self.jumps = 1
+            
+            
+        #self.wantscale[1] = abs(self.velocity[1] * 3)
+        #if self.velocity[1] > 1:
+        #    self.wantscale[0] = (abs(self.velocity[1]) * -1)
             
         if self.velocity[0] > 0:
             self.velocity[0] = max(self.velocity[0] - 0.2, 0)

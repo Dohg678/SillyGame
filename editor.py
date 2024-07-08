@@ -22,6 +22,7 @@ class Editor:
         
         self.assets = {
             'base': load_images('tiles/base_demo_tiles'),
+            'spike': load_images('tiles/spikes'),
             'bouncepad': load_images('tiles/bounce_pad'),
             'tutorial': load_images('tiles/tut'),
             'cameratr': load_images('tiles/triggers/camera'),

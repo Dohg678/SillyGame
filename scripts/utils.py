@@ -149,7 +149,6 @@ class FileManager():
             f = open(os.path.join(basedir + "data/saves/save.SAVEFILE"), 'w')
             json.dump({'level': self.game.level, 'checkpoint': self.game.respawnpoint}, f)
             f.close()
-            print('sucess')
         elif load == "dump":
             try:
                 f = open(os.path.join(basedir + "data/saves/save.SAVEFILE"), 'r')
