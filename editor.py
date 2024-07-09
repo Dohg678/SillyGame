@@ -38,6 +38,7 @@ class Editor:
             'spawners': load_images('tiles/spawners'),
             'checkpoint': load_images('tiles/checkpoint'),
             'refill': load_images('tiles/refill'),
+            'ambient/downarrow_img': load_images('particles/ambient/down_arrow'),
         }
         
         self.smallfont = Font('small_font.png')
@@ -120,7 +121,7 @@ class Editor:
                 iterationlayer += 1
             self.tilemap.editorrender(self.display, self.layers[self.current_layer], offset=render_scroll)
                 
-            self.tilemap.show_cam_bounds(self.display, self.layers[self.current_layer], offset=render_scroll)
+            self.tilemap.show_cam_bounds(self.display, self.layers[3], offset=render_scroll)
             
             current_tile_img = self.assets[self.tile_list[self.tile_group]][self.tile_variant].copy()
             current_tileset = self.tile_list[self.tile_group]

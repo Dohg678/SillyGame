@@ -116,6 +116,8 @@ class Game:
             'kill1/idle': Animation(load_images('entities/kill/1/idle'), img_dur=120, loop=True),
             'kill2/idle': Animation(load_images('entities/kill/2/idle'), img_dur=120, loop=True),
             'kill3/idle': Animation(load_images('entities/kill/3/idle'), img_dur=120, loop=True),
+            'particle/ambient/downarrow': Animation(load_images('particles/ambient/down_arrow'), img_dur=20, loop=True),
+            'ambient/downarrow_img': load_images('particles/ambient/down_arrow'),
             'gun': load_image('gun.png'),
             'projectile': load_image('projectile.png'),
         }
@@ -209,7 +211,7 @@ class Game:
         self.coyote = 0
         self.dt = 0
         self.tilemap = Tilemap(self, tile_size=16)
-        self.layers = ['rooms', 'fgscaled', 'fg', 'mg', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'invis']
+        #self.layers = ['rooms', 'fgscaled', 'fg', 'mg', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'invis']
         self.MM = MusicManager(self)
         self.volume = 100
         self.settings = 'mainpage'
@@ -254,8 +256,10 @@ class Game:
         
         for tree in self.tilemap.extract([('large_decor', 2)], keep=True):
             self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
-        
-        
+            
+        self.particles = []
+        for particle in self.tilemap.extract([('ambient/downarrow_img', 0)]):
+            self.particles.append(Particle(self, "ambient/downarrow", particle['pos'], frame = random.randint(0, len(self.assets["particle/ambient/downarrow"].images) * self.assets["particle/ambient/downarrow"].img_duration)))
            
         self.enemies = []
         for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1)]):
@@ -274,12 +278,13 @@ class Game:
         self.breakable = []
         for breakable in self.tilemap.extract([('breakables', 0)]):
                 self.breakable.append(Breakable(self, breakable['pos'], (13, 13)))
-                
+        
+        
+        
         
         self.player.velocity = [0, 0]
         self.shards = []
         self.projectiles = []
-        self.particles = []
         self.sparks = []
         self.checkpointscollected = []
     
@@ -298,7 +303,10 @@ class Game:
         for tree in self.tilemap.extract([('large_decor', 2)], keep=True):
             self.leaf_spawners.append(pygame.Rect(4 + tree['pos'][0], 4 + tree['pos'][1], 23, 13))
         
-           
+        self.particles = []
+        for particle in self.tilemap.extract([('ambient/downarrow_img', 0)]):
+            self.particles.append(Particle(self, "ambient/downarrow", particle['pos'], frame = random.randint(0, len(self.assets["particle/ambient/downarrow"].images) * self.assets["particle/ambient/downarrow"].img_duration)))
+        
         self.enemies = self.reload_enemies.copy()
         for spawner in self.tilemap.extract([('spawners', 0), ('spawners', 1)]):
             if spawner['variant'] == 0:
@@ -315,7 +323,7 @@ class Game:
         self.shards = []
         self.death = []
         self.projectiles = []
-        self.particles = []
+        
         self.sparks = []
         
         self.scroll = [0, 0]
